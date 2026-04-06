@@ -1,22 +1,5 @@
-import type { LucideIcon } from 'lucide-react'
-import { BedDouble, CalendarRange, House, Users } from 'lucide-react'
-
 const withTransform = (src: string, transform: string) =>
   src.replace('/upload/', `/upload/${transform}/`)
-
-type Detail = {
-  title: string
-  body: string
-  icon: LucideIcon
-}
-
-type GalleryMoment = {
-  alt: string
-  image: string
-  label: string
-  layout: 'featured' | 'tall' | 'wide'
-  title: string
-}
 
 type PricingSeason = {
   season: string
@@ -24,154 +7,121 @@ type PricingSeason = {
   rate: string
 }
 
+type SpaceMoment = {
+  alt: string
+  body: string
+  image: string
+  layout: 'featured' | 'tall' | 'wide'
+  title: string
+}
+
 export const bookingUrl = 'https://www.canarycove.com/book'
 
-export const heroTitle = 'The 5-suite Main House.'
+export const heroTitle = 'Canary Cove Main House'
 export const heroLocation = 'Ambergris Caye, Belize'
-export const heroQualifier = 'Repeat guests only'
-export const heroSummary =
-  'Reserved for reunions and larger family groups that already know they want the full Canary Cove estate flowing as one home base.'
+
+export const summaryHeadline =
+  'Five suites. One estate. Reserved for guests who already feel like family.'
+
+export const summaryBody =
+  'The Main House is the full Canary Cove experience, available exclusively to returning guests. If you’ve stayed with us before, this is how your group comes back bigger.'
+
+export const atGlance = [
+  '5 private suites',
+  'Returning guests only',
+  'Reunions and larger families',
+  '$2,500 to $3,600 per night',
+]
+
+export const whatYouGet = [
+  'The Main House is the entire estate operating as one home base for your group. Five suites, shared outdoor spaces, pool, waterfront, and grounds, all flowing together so nobody feels scattered across separate accommodations.',
+  'This is designed for groups that want to be under one roof (or close to it) and move through the trip together naturally.',
+]
+
+export const whyReturningGuestsOnly = [
+  'We hold the Main House for people the Canary Cove team already knows and trusts. When you’ve stayed with us before, we understand how your group works, what you care about, and how to make the stay feel effortless.',
+  'It also means every group booking the Main House has already experienced Canary Cove firsthand. No surprises on either side.',
+]
+
+export const pricingIntro =
+  'Your travel dates determine the nightly rate for the full five suite Main House.'
+
+export const pricingSeasons: PricingSeason[] = [
+  {
+    season: 'Low Season',
+    months: ['Feb', 'Mar', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+    rate: '$2,500 per night',
+  },
+  {
+    season: 'High Season',
+    months: ['May', 'Nov'],
+    rate: '$3,000 per night',
+  },
+  {
+    season: 'Peak Season',
+    months: ['Dec', 'Jan', 'Apr'],
+    rate: '$3,600 per night',
+  },
+]
+
+export const finalHeading = 'Ready to come back?'
+export const finalBody =
+  'If your group has stayed at Canary Cove and you’re planning a reunion, family trip, or larger gathering, the Main House is yours to book. Start with your dates, check availability, and we’ll take it from there.'
 
 export const heroImage = withTransform(
   'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1775486550/IMG_1579_ccfd1d.webp',
   'f_auto,q_auto,w_2200',
 )
 
-export const overviewImage = withTransform(
-  'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059672/31_villa_sign_beach_path_entry_lwypad.webp',
-  'f_auto,q_auto,w_1200,c_fill,g_auto',
+export const whatYouGetImage = withTransform(
+  'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059648/BigPool2-400x284_dhswxv.webp',
+  'f_auto,q_auto,w_1400,c_fill,g_auto',
 )
 
-export const pricingImage = withTransform(
+export const returningGuestsImage = withTransform(
   'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059674/relax_drhybs.webp',
   'f_auto,q_auto,w_1400,c_fill,g_auto',
 )
 
-export const heroStats = [
-  { label: 'Setup', value: '5 suites' },
-  { label: 'Access', value: 'Returning groups only' },
-  { label: 'Best for', value: 'Reunions + larger families' },
-  { label: 'Rates', value: '$2,500–$3,600 nightly' },
-]
-
-export const layoutDetails: Detail[] = [
+export const spaceMoments: SpaceMoment[] = [
   {
-    title: 'Full 5-suite setup',
-    body: 'This main house option is the larger configuration for groups that want the estate moving as one shared base.',
-    icon: BedDouble,
-  },
-  {
-    title: 'Reserved for returning groups',
-    body: 'It is intentionally held for guests who already know they want Canary Cove for the whole trip.',
-    icon: Users,
-  },
-  {
-    title: 'One home base for the group',
-    body: 'The positioning is about returning together and using the property as a single, larger-group center of gravity.',
-    icon: House,
-  },
-  {
-    title: 'Season-based nightly pricing',
-    body: 'Low, high, and peak months each have their own nightly rate instead of one flat year-round price.',
-    icon: CalendarRange,
-  },
-]
-
-export const pricingSeasons: PricingSeason[] = [
-  {
-    season: 'Low Season',
-    months: ['Feb', 'Mar', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-    rate: '$2,500',
-  },
-  {
-    season: 'High Season',
-    months: ['May', 'Nov'],
-    rate: '$3,000',
-  },
-  {
-    season: 'Peak Season',
-    months: ['Dec', 'Jan', 'Apr'],
-    rate: '$3,600',
-  },
-]
-
-export const galleryMoments: GalleryMoment[] = [
-  {
-    alt: 'Poolside drinks beside the water at Canary Cove',
+    alt: 'Poolside gathering space at Canary Cove',
+    body: 'Settle into a shared rhythm by the water with your whole group in one place.',
     image: withTransform(
       'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059675/82_drinks_poolside-400x284_mhumdf.webp',
       'f_auto,q_auto,w_1200,c_fill,g_auto',
     ),
-    label: 'Poolside',
     layout: 'featured',
-    title: 'The larger main-house setup works best when the group wants enough room to settle into one shared rhythm.',
+    title: 'Poolside',
   },
   {
-    alt: 'Guests relaxing along the waterfront at Canary Cove',
+    alt: 'Waterfront at Canary Cove Main House',
+    body: 'The setting feels open and expansive while keeping everyone connected.',
     image: withTransform(
-      'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059674/relax_drhybs.webp',
+      'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059634/water_urwl5j.webp',
       'f_auto,q_auto,w_1000,c_fill,g_auto',
     ),
-    label: 'Home Base',
     layout: 'tall',
-    title: 'Returning together means the estate can function as the familiar place everyone moves through naturally.',
+    title: 'Waterfront',
   },
   {
-    alt: 'Outdoor grounds and gathering spaces at Canary Cove',
+    alt: 'Outdoor grounds and shared spaces at Canary Cove',
+    body: 'Outdoor gathering spaces that give the trip a calm, unhurried center.',
     image: withTransform(
       'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059652/IMG_2062_tm7q8a.webp',
       'f_auto,q_auto,w_1200,c_fill,g_auto',
     ),
-    label: 'Grounds',
     layout: 'wide',
-    title: 'Reunions and larger family trips benefit most when the whole stay keeps returning to one calm, shared center.',
+    title: 'Grounds',
   },
   {
-    alt: 'The main pool and waterfront setting at Canary Cove',
+    alt: 'Main House pool and suites at Canary Cove',
+    body: 'Five suites means everyone has their own space and one place to come back to.',
     image: withTransform(
-      'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059648/BigPool2-400x284_dhswxv.webp',
+      'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059659/20170707_091152_lgqxsb.webp',
       'f_auto,q_auto,w_1200,c_fill,g_auto',
     ),
-    label: 'Waterfront',
     layout: 'wide',
-    title: 'The setting still feels expansive, but the story here is the five-suite setup and the returning-group fit.',
-  },
-]
-
-export const timeline = [
-  {
-    step: '01',
-    title: 'Repeat guests only',
-    body: 'This accommodation path is reserved for groups who already know Canary Cove is where they want to come back together.',
-  },
-  {
-    step: '02',
-    title: 'Main House, full 5 suites',
-    body: 'It is the larger setup for groups that want the whole main house functioning as one shared home base.',
-  },
-  {
-    step: '03',
-    title: 'Nightly rate depends on season',
-    body: 'Low, high, and peak travel months each have a distinct nightly price tied to when the group travels.',
-  },
-  {
-    step: '04',
-    title: 'Best for reunions and larger families',
-    body: 'The fit is a group returning together, not a small first-time stay trying to test the property.',
-  },
-]
-
-export const finalNotes = [
-  {
-    title: 'This is the returner version of the main house',
-    body: 'The repeat-guest requirement is part of the positioning, not a detail to discover late in the process.',
-  },
-  {
-    title: 'The offer is the full setup',
-    body: 'What matters here is access to the 5-suite main house as one coordinated base rather than a smaller accommodation mix.',
-  },
-  {
-    title: 'The right fit is a group that already knows the answer',
-    body: 'Reunions and larger family groups tend to get the most value when they already know they want Canary Cove for the trip.',
+    title: 'Home Base',
   },
 ]

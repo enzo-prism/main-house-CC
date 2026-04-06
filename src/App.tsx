@@ -1,29 +1,25 @@
 import { useSyncExternalStore } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 import {
+  atGlance,
   bookingUrl,
-  finalNotes,
-  galleryMoments,
+  finalBody,
+  finalHeading,
   heroImage,
   heroLocation,
-  heroQualifier,
-  heroStats,
-  heroSummary,
   heroTitle,
-  layoutDetails,
-  overviewImage,
-  pricingImage,
+  pricingIntro,
   pricingSeasons,
-  timeline,
+  returningGuestsImage,
+  spaceMoments,
+  summaryBody,
+  summaryHeadline,
+  whatYouGet,
+  whatYouGetImage,
+  whyReturningGuestsOnly,
 } from './content'
-
-type SectionIntroProps = {
-  eyebrow: string
-  title: string
-  body: string
-}
 
 const MOBILE_MEDIA_QUERY = '(max-width: 44rem)'
 
@@ -44,14 +40,24 @@ function getMobileViewportSnapshot() {
   return typeof window !== 'undefined' && window.matchMedia(MOBILE_MEDIA_QUERY).matches
 }
 
-function SectionIntro({ eyebrow, title, body }: SectionIntroProps) {
+type TextSectionProps = {
+  body: string[]
+  eyebrow?: string
+  title: string
+}
+
+function TextSection({ body, eyebrow, title }: TextSectionProps) {
   return (
-    <div className="section-intro">
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h2 className="section-title">{title}</h2>
+    <div className="copy-block">
+      {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+      <h2 className="section-title section-title-wide">{title}</h2>
+      <div className="copy-stack">
+        {body.map((paragraph) => (
+          <p className="section-body" key={paragraph}>
+            {paragraph}
+          </p>
+        ))}
       </div>
-      <p className="section-body">{body}</p>
     </div>
   )
 }
@@ -161,32 +167,32 @@ function App() {
 
   const heroReveal = shouldReduceMotion
     ? {}
-      : {
-          initial: {
-            opacity: 0,
-            y: isMobile ? 10 : 16,
-            scale: isMobile ? 0.996 : 0.988,
+    : {
+        initial: {
+          opacity: 0,
+          y: isMobile ? 10 : 16,
+          scale: isMobile ? 0.996 : 0.988,
+        },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        transition: {
+          opacity: {
+            duration: isMobile ? 0.42 : 0.52,
+            ease: [0.32, 0.72, 0, 1] as const,
           },
-          animate: { opacity: 1, y: 0, scale: 1 },
-          transition: {
-            opacity: {
-              duration: isMobile ? 0.42 : 0.52,
-              ease: [0.32, 0.72, 0, 1] as const,
-            },
-            y: {
-              type: 'spring' as const,
-              stiffness: isMobile ? 200 : 170,
-              damping: isMobile ? 28 : 24,
-              mass: 0.84,
-            },
-            scale: {
-              type: 'spring' as const,
-              stiffness: isMobile ? 210 : 180,
-              damping: isMobile ? 28 : 24,
-              mass: 0.84,
-            },
+          y: {
+            type: 'spring' as const,
+            stiffness: isMobile ? 200 : 170,
+            damping: isMobile ? 28 : 24,
+            mass: 0.84,
           },
-        }
+          scale: {
+            type: 'spring' as const,
+            stiffness: isMobile ? 210 : 180,
+            damping: isMobile ? 28 : 24,
+            mass: 0.84,
+          },
+        },
+      }
 
   return (
     <div className="page-shell">
@@ -198,9 +204,9 @@ function App() {
           </a>
 
           <div className="topbar-links">
-            <a href="#overview">Overview</a>
+            <a href="#what-you-get">What you get</a>
             <a href="#pricing">Pricing</a>
-            <a href="#fit">Fit</a>
+            <a href="#ready">Ready</a>
           </div>
         </nav>
 
@@ -228,8 +234,8 @@ function App() {
           <div className="summary-layout">
             <motion.div className="summary-copy" {...sectionReveal(0.04)}>
               <p className="eyebrow">{heroLocation}</p>
-              <p className="summary-tag">{heroQualifier}</p>
-              <p className="summary-lead">{heroSummary}</p>
+              <h2 className="summary-headline">{summaryHeadline}</h2>
+              <p className="summary-lead">{summaryBody}</p>
 
               <div className="hero-actions summary-actions">
                 <a className="button button-primary" href={bookingUrl}>
@@ -242,124 +248,78 @@ function App() {
               </div>
             </motion.div>
 
-            <motion.dl
-              className="summary-stats"
-              aria-label="Main house summary facts"
-              {...staggerReveal(0.08)}
-            >
-              {heroStats.map((item) => (
-                <motion.div className="summary-stat" key={item.label} variants={itemVariants}>
-                  <dt>{item.label}</dt>
-                  <dd>{item.value}</dd>
-                </motion.div>
-              ))}
-            </motion.dl>
+            <motion.div className="glance-section" {...staggerReveal(0.08)}>
+              <p className="eyebrow">At a glance</p>
+              <div className="glance-grid" aria-label="At a glance">
+                {atGlance.map((item) => (
+                  <motion.div className="glance-item" key={item} variants={itemVariants}>
+                    <p>{item}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </motion.section>
 
-        <motion.section className="section shell" id="overview" {...sectionReveal()}>
-          <SectionIntro
-            eyebrow="The setup"
-            title="The full configuration for groups already returning together."
-            body="Once the trip is already a yes, the main house becomes the larger shared base rather than the first place to explain the whole offer."
-          />
-
-          <div className="overview-grid">
-            <motion.div className="overview-copy" {...sectionReveal(0.04)}>
-              <p className="statement">
-                This is the bigger configuration for guests already committed to
-                coming back together.
-              </p>
-
-              <motion.ul
-                className="feature-list"
-                aria-label="Main house setup details"
-                {...staggerReveal(0.06)}
-              >
-                {layoutDetails.map(({ body, icon: Icon, title }) => (
-                  <motion.li className="feature-item" key={title} variants={itemVariants}>
-                    <span className="feature-icon">
-                      <Icon aria-hidden="true" size={20} />
-                    </span>
-                    <div>
-                      <h3>{title}</h3>
-                      <p>{body}</p>
-                    </div>
-                  </motion.li>
-                ))}
-              </motion.ul>
+        <motion.section className="section shell" id="what-you-get" {...sectionReveal()}>
+          <div className="content-split">
+            <motion.div {...sectionReveal(0.04)}>
+              <TextSection body={whatYouGet} title="What you get" />
             </motion.div>
 
             <motion.figure className="editorial-figure" {...sectionReveal(0.1)}>
-              <img alt="Path leading toward the Canary Cove Main House" src={overviewImage} />
-              <figcaption>
-                The larger main-house setup is positioned as one familiar base for
-                the whole group, not a smaller exploratory stay.
-              </figcaption>
+              <img alt="Pool and waterfront at Canary Cove Main House" src={whatYouGetImage} />
             </motion.figure>
           </div>
         </motion.section>
 
-        <motion.section className="section section-muted" id="pricing" {...sectionReveal()}>
-          <div className="shell pricing-layout">
-            <motion.div className="pricing-copy" {...sectionReveal(0.04)}>
-              <SectionIntro
-                eyebrow="Seasonal nightly pricing"
-                title="The travel month sets the nightly rate."
-                body="Once the group knows its timing, the pricing structure is straightforward. Low, high, and peak months each have their own nightly rate for the full 5-suite main house."
+        <motion.section className="section section-soft" {...sectionReveal()}>
+          <div className="shell content-split content-split-reverse">
+            <motion.figure className="editorial-figure" {...sectionReveal(0.04)}>
+              <img
+                alt="Guests relaxing at the Canary Cove Main House"
+                src={returningGuestsImage}
               />
+            </motion.figure>
 
-              <p className="pricing-note">
-                Repeat guests only. Best for reunions and larger family groups that
-                already know they want the estate as one home base.
-              </p>
+            <motion.div {...sectionReveal(0.1)}>
+              <TextSection
+                body={whyReturningGuestsOnly}
+                title="Why returning guests only"
+              />
+            </motion.div>
+          </div>
+        </motion.section>
 
-              <a className="inline-link" href={bookingUrl}>
-                Start with your dates
-                <ArrowRight aria-hidden="true" size={18} />
-              </a>
+        <motion.section className="section section-muted" id="pricing" {...sectionReveal()}>
+          <div className="shell pricing-layout pricing-layout-single">
+            <motion.div className="pricing-copy" {...sectionReveal(0.04)}>
+              <TextSection body={[pricingIntro]} title="Seasonal pricing" />
             </motion.div>
 
-            <div className="pricing-content">
-              <motion.div
-                className="pricing-panel"
-                aria-label="Main house seasonal pricing"
-                {...staggerReveal(0.06)}
-              >
-                {pricingSeasons.map(({ months, rate, season }) => (
-                  <motion.div className="pricing-row" key={season} variants={itemVariants}>
-                    <div className="pricing-season-block">
-                      <p className="pricing-season">{season}</p>
-                      <p className="pricing-months">{months.join(' · ')}</p>
-                    </div>
-                    <div className="pricing-rate-block">
-                      <p className="pricing-rate-label">5 Suites</p>
-                      <p className="pricing-rate">{rate}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              <motion.figure className="editorial-figure pricing-figure" {...sectionReveal(0.12)}>
-                <img alt="Guests relaxing at Canary Cove" src={pricingImage} />
-                <figcaption>
-                  This offer is for groups already returning with enough clarity to
-                  book the full main-house setup.
-                </figcaption>
-              </motion.figure>
-            </div>
+            <motion.div className="pricing-panel" {...staggerReveal(0.08)}>
+              {pricingSeasons.map(({ months, rate, season }) => (
+                <motion.div className="pricing-row" key={season} variants={itemVariants}>
+                  <div className="pricing-season-block">
+                    <p className="pricing-season">{season}</p>
+                    <p className="pricing-months">{months.join(', ')}</p>
+                  </div>
+                  <div className="pricing-rate-block">
+                    <p className="pricing-rate">{rate}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </motion.section>
 
         <motion.section className="section shell" {...sectionReveal()}>
-          <SectionIntro
-            eyebrow="How the estate supports the group"
-            title="One home base, enough room for the full return trip."
-            body="The visual appeal still matters, but the main story now is clarity: a larger-group setup, a familiar place to come back to, and a cleaner way to anchor the whole stay."
-          />
+          <div className="space-intro">
+            <p className="eyebrow">The space</p>
+          </div>
 
           <motion.div className="gallery-grid" {...staggerReveal(0.05, isMobile ? 0.08 : 0.06)}>
-            {galleryMoments.map((moment) => (
+            {spaceMoments.map((moment) => (
               <motion.figure
                 className="gallery-card"
                 data-layout={moment.layout}
@@ -367,72 +327,19 @@ function App() {
                 variants={itemVariants}
               >
                 <img alt={moment.alt} src={moment.image} />
-                <figcaption>
-                  <span>{moment.label}</span>
-                  <strong>{moment.title}</strong>
+                <figcaption className="space-card-copy">
+                  <h3>{moment.title}</h3>
+                  <p>{moment.body}</p>
                 </figcaption>
               </motion.figure>
             ))}
           </motion.div>
         </motion.section>
 
-        <motion.section className="section section-soft" {...sectionReveal()}>
-          <div className="shell">
-            <SectionIntro
-              eyebrow="How the offer is framed"
-              title="Specific by design, not generic by default."
-              body="This page should read like a repeat-guest accommodations path. The 5-suite setup, the seasonal rates, and the reunion-family fit all work together."
-            />
-
-            <motion.ol
-              className="timeline"
-              aria-label="How the offer is structured"
-              {...staggerReveal(0.06)}
-            >
-              {timeline.map((step) => (
-                <motion.li className="timeline-step" key={step.title} variants={itemVariants}>
-                  <span className="timeline-number">{step.step}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
-                </motion.li>
-              ))}
-            </motion.ol>
-          </div>
-        </motion.section>
-
-        <motion.section className="section shell nuance-section" id="fit" {...sectionReveal()}>
-          <motion.div className="nuance-copy" {...sectionReveal(0.04)}>
-            <p className="eyebrow">Worth knowing</p>
-            <h2 className="section-title">
-              Five suites, returning groups, and a larger-group fit are the point.
-            </h2>
-            <p className="section-body">
-              The narrower positioning makes the offer clearer. This is not meant to
-              read like a broad first-time booking page, but like the right option
-              for a group already coming back together.
-            </p>
-          </motion.div>
-
-          <motion.div className="nuance-notes" {...staggerReveal(0.08)}>
-            {finalNotes.map((note) => (
-              <motion.div className="nuance-note" key={note.title} variants={itemVariants}>
-                <h3>{note.title}</h3>
-                <p>{note.body}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
-
-        <motion.section className="section shell cta-section" {...sectionReveal()}>
+        <motion.section className="section shell cta-section" id="ready" {...sectionReveal()}>
           <motion.div className="cta-panel" {...sectionReveal(0.04)}>
-            <p className="eyebrow">Plan the stay</p>
-            <h2 className="section-title">
-              If your group is coming back for the full 5-suite setup, start here.
-            </h2>
-            <p className="section-body">
-              Use the season table as the first pricing reference, then bring your
-              dates to Canary Cove for availability on the main house.
-            </p>
+            <h2 className="section-title section-title-wide">{finalHeading}</h2>
+            <p className="section-body cta-copy">{finalBody}</p>
 
             <div className="hero-actions">
               <a className="button button-primary" href={bookingUrl}>
