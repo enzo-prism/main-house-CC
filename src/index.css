@@ -65,6 +65,18 @@ img {
   max-width: 100%;
 }
 
+.summary-stat,
+.feature-item,
+.pricing-row,
+.gallery-card,
+.timeline-step,
+.nuance-note,
+.editorial-figure,
+.cta-panel {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 #root {
   min-height: 100vh;
 }
@@ -605,6 +617,18 @@ img {
   transform: scale(1.025);
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .button:hover,
+  .button:focus-visible {
+    transform: none;
+  }
+
+  .gallery-card:hover img,
+  .gallery-card:focus-within img {
+    transform: none;
+  }
+}
+
 .gallery-card figcaption {
   padding: 1rem 1.05rem 1.15rem;
 }
@@ -819,6 +843,10 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

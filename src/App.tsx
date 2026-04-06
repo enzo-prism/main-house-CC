@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
@@ -24,6 +25,25 @@ type SectionIntroProps = {
   body: string
 }
 
+const MOBILE_MEDIA_QUERY = '(max-width: 44rem)'
+
+function subscribeToMobileViewport(callback: () => void) {
+  if (typeof window === 'undefined') {
+    return () => {}
+  }
+
+  const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY)
+  const listener = () => callback()
+
+  mediaQuery.addEventListener('change', listener)
+
+  return () => mediaQuery.removeEventListener('change', listener)
+}
+
+function getMobileViewportSnapshot() {
+  return typeof window !== 'undefined' && window.matchMedia(MOBILE_MEDIA_QUERY).matches
+}
+
 function SectionIntro({ eyebrow, title, body }: SectionIntroProps) {
   return (
     <div className="section-intro">
@@ -38,28 +58,135 @@ function SectionIntro({ eyebrow, title, body }: SectionIntroProps) {
 
 function App() {
   const shouldReduceMotion = useReducedMotion()
+  const isMobile = useSyncExternalStore(
+    subscribeToMobileViewport,
+    getMobileViewportSnapshot,
+    () => false,
+  )
 
-  const reveal = (delay = 0) =>
+  const sectionReveal = (delay = 0) =>
     shouldReduceMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 18 },
-          whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, amount: 0.3 },
+          initial: {
+            opacity: 0,
+            y: isMobile ? 20 : 30,
+            scale: isMobile ? 0.995 : 0.985,
+          },
+          whileInView: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+          },
+          viewport: {
+            once: true,
+            amount: isMobile ? 0.16 : 0.22,
+            margin: isMobile ? '0px 0px -10% 0px' : '0px 0px -14% 0px',
+          },
           transition: {
-            duration: 0.56,
             delay,
-            ease: [0.22, 1, 0.36, 1] as const,
+            opacity: {
+              duration: isMobile ? 0.34 : 0.42,
+              ease: [0.32, 0.72, 0, 1] as const,
+            },
+            y: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 180 : 150,
+              damping: isMobile ? 28 : 24,
+              mass: 0.82,
+            },
+            scale: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 200 : 170,
+              damping: isMobile ? 28 : 24,
+              mass: 0.82,
+            },
+          },
+        }
+
+  const itemVariants = shouldReduceMotion
+    ? undefined
+    : {
+        hidden: {
+          opacity: 0,
+          y: isMobile ? 14 : 18,
+          scale: 0.992,
+        },
+        visible: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: {
+            opacity: {
+              duration: isMobile ? 0.28 : 0.34,
+              ease: [0.32, 0.72, 0, 1] as const,
+            },
+            y: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 210 : 180,
+              damping: isMobile ? 30 : 26,
+              mass: 0.8,
+            },
+            scale: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 220 : 190,
+              damping: isMobile ? 30 : 26,
+              mass: 0.8,
+            },
+          },
+        },
+      }
+
+  const staggerReveal = (delayChildren = 0, staggerChildren = isMobile ? 0.06 : 0.075) =>
+    shouldReduceMotion
+      ? {}
+      : {
+          initial: 'hidden',
+          whileInView: 'visible',
+          viewport: {
+            once: true,
+            amount: isMobile ? 0.14 : 0.18,
+            margin: isMobile ? '0px 0px -8% 0px' : '0px 0px -10% 0px',
+          },
+          variants: {
+            hidden: {},
+            visible: {
+              transition: {
+                delayChildren,
+                staggerChildren,
+              },
+            },
           },
         }
 
   const heroReveal = shouldReduceMotion
     ? {}
-    : {
-        initial: { opacity: 0, y: 12 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-      }
+      : {
+          initial: {
+            opacity: 0,
+            y: isMobile ? 10 : 16,
+            scale: isMobile ? 0.996 : 0.988,
+          },
+          animate: { opacity: 1, y: 0, scale: 1 },
+          transition: {
+            opacity: {
+              duration: isMobile ? 0.42 : 0.52,
+              ease: [0.32, 0.72, 0, 1] as const,
+            },
+            y: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 200 : 170,
+              damping: isMobile ? 28 : 24,
+              mass: 0.84,
+            },
+            scale: {
+              type: 'spring' as const,
+              stiffness: isMobile ? 210 : 180,
+              damping: isMobile ? 28 : 24,
+              mass: 0.84,
+            },
+          },
+        }
 
   return (
     <div className="page-shell">
@@ -97,9 +224,9 @@ function App() {
       </header>
 
       <main>
-        <motion.section className="section summary-section shell" {...reveal()}>
+        <motion.section className="section summary-section shell" {...sectionReveal()}>
           <div className="summary-layout">
-            <div className="summary-copy">
+            <motion.div className="summary-copy" {...sectionReveal(0.04)}>
               <p className="eyebrow">{heroLocation}</p>
               <p className="summary-tag">{heroQualifier}</p>
               <p className="summary-lead">{heroSummary}</p>
@@ -113,20 +240,24 @@ function App() {
                   See seasonal pricing
                 </a>
               </div>
-            </div>
+            </motion.div>
 
-            <dl className="summary-stats" aria-label="Main house summary facts">
+            <motion.dl
+              className="summary-stats"
+              aria-label="Main house summary facts"
+              {...staggerReveal(0.08)}
+            >
               {heroStats.map((item) => (
-                <div className="summary-stat" key={item.label}>
+                <motion.div className="summary-stat" key={item.label} variants={itemVariants}>
                   <dt>{item.label}</dt>
                   <dd>{item.value}</dd>
-                </div>
+                </motion.div>
               ))}
-            </dl>
+            </motion.dl>
           </div>
         </motion.section>
 
-        <motion.section className="section shell" id="overview" {...reveal()}>
+        <motion.section className="section shell" id="overview" {...sectionReveal()}>
           <SectionIntro
             eyebrow="The setup"
             title="The full configuration for groups already returning together."
@@ -134,15 +265,19 @@ function App() {
           />
 
           <div className="overview-grid">
-            <div className="overview-copy">
+            <motion.div className="overview-copy" {...sectionReveal(0.04)}>
               <p className="statement">
                 This is the bigger configuration for guests already committed to
                 coming back together.
               </p>
 
-              <ul className="feature-list" aria-label="Main house setup details">
+              <motion.ul
+                className="feature-list"
+                aria-label="Main house setup details"
+                {...staggerReveal(0.06)}
+              >
                 {layoutDetails.map(({ body, icon: Icon, title }) => (
-                  <li className="feature-item" key={title}>
+                  <motion.li className="feature-item" key={title} variants={itemVariants}>
                     <span className="feature-icon">
                       <Icon aria-hidden="true" size={20} />
                     </span>
@@ -150,24 +285,24 @@ function App() {
                       <h3>{title}</h3>
                       <p>{body}</p>
                     </div>
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
-            </div>
+              </motion.ul>
+            </motion.div>
 
-            <figure className="editorial-figure">
+            <motion.figure className="editorial-figure" {...sectionReveal(0.1)}>
               <img alt="Path leading toward the Canary Cove Main House" src={overviewImage} />
               <figcaption>
                 The larger main-house setup is positioned as one familiar base for
                 the whole group, not a smaller exploratory stay.
               </figcaption>
-            </figure>
+            </motion.figure>
           </div>
         </motion.section>
 
-        <motion.section className="section section-muted" id="pricing" {...reveal()}>
+        <motion.section className="section section-muted" id="pricing" {...sectionReveal()}>
           <div className="shell pricing-layout">
-            <div className="pricing-copy">
+            <motion.div className="pricing-copy" {...sectionReveal(0.04)}>
               <SectionIntro
                 eyebrow="Seasonal nightly pricing"
                 title="The travel month sets the nightly rate."
@@ -183,12 +318,16 @@ function App() {
                 Start with your dates
                 <ArrowRight aria-hidden="true" size={18} />
               </a>
-            </div>
+            </motion.div>
 
             <div className="pricing-content">
-              <div className="pricing-panel" aria-label="Main house seasonal pricing">
+              <motion.div
+                className="pricing-panel"
+                aria-label="Main house seasonal pricing"
+                {...staggerReveal(0.06)}
+              >
                 {pricingSeasons.map(({ months, rate, season }) => (
-                  <div className="pricing-row" key={season}>
+                  <motion.div className="pricing-row" key={season} variants={itemVariants}>
                     <div className="pricing-season-block">
                       <p className="pricing-season">{season}</p>
                       <p className="pricing-months">{months.join(' · ')}</p>
@@ -197,35 +336,35 @@ function App() {
                       <p className="pricing-rate-label">5 Suites</p>
                       <p className="pricing-rate">{rate}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
-              <figure className="editorial-figure pricing-figure">
+              <motion.figure className="editorial-figure pricing-figure" {...sectionReveal(0.12)}>
                 <img alt="Guests relaxing at Canary Cove" src={pricingImage} />
                 <figcaption>
                   This offer is for groups already returning with enough clarity to
                   book the full main-house setup.
                 </figcaption>
-              </figure>
+              </motion.figure>
             </div>
           </div>
         </motion.section>
 
-        <motion.section className="section shell" {...reveal()}>
+        <motion.section className="section shell" {...sectionReveal()}>
           <SectionIntro
             eyebrow="How the estate supports the group"
             title="One home base, enough room for the full return trip."
             body="The visual appeal still matters, but the main story now is clarity: a larger-group setup, a familiar place to come back to, and a cleaner way to anchor the whole stay."
           />
 
-          <div className="gallery-grid">
-            {galleryMoments.map((moment, index) => (
+          <motion.div className="gallery-grid" {...staggerReveal(0.05, isMobile ? 0.08 : 0.06)}>
+            {galleryMoments.map((moment) => (
               <motion.figure
                 className="gallery-card"
                 data-layout={moment.layout}
                 key={moment.title}
-                {...reveal(index * 0.06)}
+                variants={itemVariants}
               >
                 <img alt={moment.alt} src={moment.image} />
                 <figcaption>
@@ -234,10 +373,10 @@ function App() {
                 </figcaption>
               </motion.figure>
             ))}
-          </div>
+          </motion.div>
         </motion.section>
 
-        <motion.section className="section section-soft" {...reveal()}>
+        <motion.section className="section section-soft" {...sectionReveal()}>
           <div className="shell">
             <SectionIntro
               eyebrow="How the offer is framed"
@@ -245,20 +384,24 @@ function App() {
               body="This page should read like a repeat-guest accommodations path. The 5-suite setup, the seasonal rates, and the reunion-family fit all work together."
             />
 
-            <ol className="timeline" aria-label="How the offer is structured">
+            <motion.ol
+              className="timeline"
+              aria-label="How the offer is structured"
+              {...staggerReveal(0.06)}
+            >
               {timeline.map((step) => (
-                <li className="timeline-step" key={step.title}>
+                <motion.li className="timeline-step" key={step.title} variants={itemVariants}>
                   <span className="timeline-number">{step.step}</span>
                   <h3>{step.title}</h3>
                   <p>{step.body}</p>
-                </li>
+                </motion.li>
               ))}
-            </ol>
+            </motion.ol>
           </div>
         </motion.section>
 
-        <motion.section className="section shell nuance-section" id="fit" {...reveal()}>
-          <div className="nuance-copy">
+        <motion.section className="section shell nuance-section" id="fit" {...sectionReveal()}>
+          <motion.div className="nuance-copy" {...sectionReveal(0.04)}>
             <p className="eyebrow">Worth knowing</p>
             <h2 className="section-title">
               Five suites, returning groups, and a larger-group fit are the point.
@@ -268,20 +411,20 @@ function App() {
               read like a broad first-time booking page, but like the right option
               for a group already coming back together.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="nuance-notes">
+          <motion.div className="nuance-notes" {...staggerReveal(0.08)}>
             {finalNotes.map((note) => (
-              <div className="nuance-note" key={note.title}>
+              <motion.div className="nuance-note" key={note.title} variants={itemVariants}>
                 <h3>{note.title}</h3>
                 <p>{note.body}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </motion.section>
 
-        <motion.section className="section shell cta-section" {...reveal()}>
-          <div className="cta-panel">
+        <motion.section className="section shell cta-section" {...sectionReveal()}>
+          <motion.div className="cta-panel" {...sectionReveal(0.04)}>
             <p className="eyebrow">Plan the stay</p>
             <h2 className="section-title">
               If your group is coming back for the full 5-suite setup, start here.
@@ -300,7 +443,7 @@ function App() {
                 View full Canary Cove
               </a>
             </div>
-          </div>
+          </motion.div>
         </motion.section>
       </main>
     </div>
