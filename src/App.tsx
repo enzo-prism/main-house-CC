@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
 import {
@@ -6,7 +6,11 @@ import {
   finalNotes,
   galleryMoments,
   heroImage,
+  heroLocation,
+  heroQualifier,
   heroStats,
+  heroSummary,
+  heroTitle,
   layoutDetails,
   overviewImage,
   pricingImage,
@@ -34,9 +38,6 @@ function SectionIntro({ eyebrow, title, body }: SectionIntroProps) {
 
 function App() {
   const shouldReduceMotion = useReducedMotion()
-  const { scrollYProgress } = useScroll()
-  const heroScale = useTransform(scrollYProgress, [0, 0.24], [1, 1.03])
-  const heroY = useTransform(scrollYProgress, [0, 0.24], [0, 44])
 
   const reveal = (delay = 0) =>
     shouldReduceMotion
@@ -52,93 +53,91 @@ function App() {
           },
         }
 
+  const heroReveal = shouldReduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 12 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+      }
+
   return (
     <div className="page-shell">
-      <header className="hero">
-        <div className="hero-media">
-          <motion.img
-            alt="Canary Cove Main House on the Belize waterfront"
-            className="hero-image"
-            decoding="async"
-            fetchPriority="high"
-            loading="eager"
-            src={heroImage}
-            style={shouldReduceMotion ? undefined : { scale: heroScale, y: heroY }}
-          />
-          <div className="hero-overlay" />
-        </div>
+      <header className="hero" id="top">
+        <nav className="topbar shell" aria-label="Main">
+          <a className="brand-lockup" href="#top">
+            <span className="brand-kicker">Canary Cove</span>
+            <span className="brand-name">Main House</span>
+          </a>
 
-        <div className="hero-inner">
-          <nav className="topbar shell" aria-label="Main">
-            <a className="brand-lockup" href="#top">
-              <span className="brand-kicker">Canary Cove</span>
-              <span className="brand-name">Main House</span>
-            </a>
+          <div className="topbar-links">
+            <a href="#overview">Overview</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#fit">Fit</a>
+          </div>
+        </nav>
 
-            <div className="topbar-links">
-              <a href="#overview">Overview</a>
-              <a href="#pricing">Pricing</a>
-              <a href="#fit">Fit</a>
+        <motion.div className="hero-stage" {...heroReveal}>
+          <div className="hero-poster">
+            <img
+              alt="Canary Cove Main House on the Belize waterfront"
+              className="hero-image"
+              decoding="async"
+              fetchPriority="high"
+              loading="eager"
+              src={heroImage}
+            />
+            <div className="hero-overlay" />
+
+            <div className="hero-title-wrap">
+              <h1 className="hero-title">{heroTitle}</h1>
+            </div>
+          </div>
+        </motion.div>
+      </header>
+
+      <main>
+        <motion.section className="section summary-section shell" {...reveal()}>
+          <div className="summary-layout">
+            <div className="summary-copy">
+              <p className="eyebrow">{heroLocation}</p>
+              <p className="summary-tag">{heroQualifier}</p>
+              <p className="summary-lead">{heroSummary}</p>
+
+              <div className="hero-actions summary-actions">
+                <a className="button button-primary" href={bookingUrl}>
+                  Check availability
+                  <ArrowUpRight aria-hidden="true" size={18} />
+                </a>
+                <a className="button button-ghost-dark" href="#pricing">
+                  See seasonal pricing
+                </a>
+              </div>
             </div>
 
-            <a className="button button-secondary topbar-cta" href={bookingUrl}>
-              Check availability
-            </a>
-          </nav>
-
-          <div className="hero-content shell" id="top">
-            <motion.p className="eyebrow hero-eyebrow" {...reveal()}>
-              Ambergris Caye, Belize
-            </motion.p>
-
-            <motion.p className="hero-tag" {...reveal(0.04)}>
-              Repeat guests only
-            </motion.p>
-
-            <motion.h1 className="hero-title" {...reveal(0.08)}>
-              The 5-suite Main House for returning groups.
-            </motion.h1>
-
-            <motion.p className="hero-copy" {...reveal(0.16)}>
-              Reserved for reunions and larger family groups that already know they
-              want the full Canary Cove estate flowing as one home base.
-            </motion.p>
-
-            <motion.div className="hero-actions" {...reveal(0.24)}>
-              <a className="button button-primary" href={bookingUrl}>
-                Check availability
-                <ArrowUpRight aria-hidden="true" size={18} />
-              </a>
-              <a className="button button-ghost" href="#pricing">
-                See seasonal pricing
-              </a>
-            </motion.div>
-
-            <motion.dl className="hero-stats" {...reveal(0.32)}>
+            <dl className="summary-stats" aria-label="Main house summary facts">
               {heroStats.map((item) => (
-                <div className="hero-stat" key={item.label}>
+                <div className="summary-stat" key={item.label}>
                   <dt>{item.label}</dt>
                   <dd>{item.value}</dd>
                 </div>
               ))}
-            </motion.dl>
+            </dl>
           </div>
-        </div>
-      </header>
+        </motion.section>
 
-      <main>
         <motion.section className="section shell" id="overview" {...reveal()}>
           <SectionIntro
-            eyebrow="The full main house option"
-            title="Reserved for groups coming back for the whole 5-suite setup."
-            body="This is the larger Canary Cove configuration for returning guests who want the estate functioning as one shared home base for a reunion or larger family stay."
+            eyebrow="The setup"
+            title="The full configuration for groups already returning together."
+            body="Once the trip is already a yes, the main house becomes the larger shared base rather than the first place to explain the whole offer."
           />
 
           <div className="overview-grid">
             <div className="overview-copy">
               <p className="statement">
-                Not the first-time stay path. The main house arrangement for groups
-                already sure they want Canary Cove together.
+                This is the bigger configuration for guests already committed to
+                coming back together.
               </p>
 
               <ul className="feature-list" aria-label="Main house setup details">

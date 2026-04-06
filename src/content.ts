@@ -26,9 +26,15 @@ type PricingSeason = {
 
 export const bookingUrl = 'https://www.canarycove.com/book'
 
+export const heroTitle = 'The 5-suite Main House.'
+export const heroLocation = 'Ambergris Caye, Belize'
+export const heroQualifier = 'Repeat guests only'
+export const heroSummary =
+  'Reserved for reunions and larger family groups that already know they want the full Canary Cove estate flowing as one home base.'
+
 export const heroImage = withTransform(
   'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1775486550/IMG_1579_ccfd1d.webp',
-  'f_auto,q_auto,w_2200,c_fill,g_auto',
+  'f_auto,q_auto,w_2200',
 )
 
 export const overviewImage = withTransform(
