@@ -350,6 +350,10 @@ img {
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
 }
 
+.glance-item:last-child {
+  grid-column: 1 / -1;
+}
+
 .glance-item p {
   margin: 0;
   color: var(--ink);

@@ -8,6 +8,9 @@ This site is intentionally positioned around the current approved offer:
 - `Reserved for returning groups`
 - `Best for reunions and larger family groups`
 - seasonal nightly pricing from `$2,500` to `$3,600`
+- separate `$10,000 damage deposit`
+
+The share URL is `https://mainhouse.canarycove.com`. It is intentionally unlinked and marked `noindex` so Don can send it directly to returning guests.
 
 The design direction is clean, white, minimal, and image-led, with a stronger contrast hero and a product-style information hierarchy.
 

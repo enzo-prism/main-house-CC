@@ -5,6 +5,7 @@ import { ArrowUpRight } from 'lucide-react'
 import {
   atGlance,
   bookingUrl,
+  damageDepositNote,
   finalBody,
   finalHeading,
   heroImage,
@@ -294,7 +295,7 @@ function App() {
         <motion.section className="section section-muted" id="pricing" {...sectionReveal()}>
           <div className="shell pricing-layout pricing-layout-single">
             <motion.div className="pricing-copy" {...sectionReveal(0.04)}>
-              <TextSection body={[pricingIntro]} title="Seasonal pricing" />
+              <TextSection body={[pricingIntro, damageDepositNote]} title="Seasonal pricing" />
             </motion.div>
 
             <motion.div className="pricing-panel" {...staggerReveal(0.08)}>

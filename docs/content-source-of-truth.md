@@ -8,6 +8,7 @@ This document exists to keep the microsite aligned with the currently approved M
 - `Reserved for returning groups who want the full 5-suite setup`
 - `Repeat guests only`
 - `Best for reunions and larger family groups that already know they want the whole estate flowing as one home base`
+- a separate `$10,000 damage deposit` applies to every Main House stay
 
 ## Seasonal Nightly Pricing
 
@@ -58,6 +59,13 @@ Keep these points central in the page:
 - this is for `returning groups only`
 - this is best for `reunions and larger family groups`
 - the pricing is `seasonal`, not flat
+- the `$10,000 damage deposit` is separate from nightly pricing
+
+## Sharing and discovery
+
+- Canonical share URL: `https://mainhouse.canarycove.com`
+- This page is intentionally unlinked and marked `noindex` because Don shares it directly with repeat guests.
+- The public Canary Cove site may summarize the offer, but it should not link to this detailed page.
 
 ## Claims To Avoid Unless Reconfirmed
 
