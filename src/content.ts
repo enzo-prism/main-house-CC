@@ -15,7 +15,8 @@ type SpaceMoment = {
   title: string
 }
 
-export const bookingUrl = 'https://www.canarycove.com/book'
+export const bookingUrl =
+  'https://www.canarycove.com/book?accommodation=main-house&returning=yes'
 
 export const heroTitle = 'Canary Cove Main House'
 export const heroLocation = 'Ambergris Caye, Belize'
@@ -31,6 +32,7 @@ export const atGlance = [
   'Returning guests only',
   'Reunions and larger families',
   '$2,500 to $3,600 per night',
+  '$10,000 damage deposit',
 ]
 
 export const whatYouGet = [
@@ -45,6 +47,9 @@ export const whyReturningGuestsOnly = [
 
 export const pricingIntro =
   'Your travel dates determine the nightly rate for the full five suite Main House.'
+
+export const damageDepositNote =
+  'A separate $10,000 damage deposit applies to every Main House stay.'
 
 export const pricingSeasons: PricingSeason[] = [
   {
