@@ -64,7 +64,7 @@ Keep these points central in the page:
 ## Sharing and discovery
 
 - Canonical share URL: `https://mainhouse.canarycove.com`
-- This page is intentionally unlinked and marked `noindex` because Don shares it directly with repeat guests.
+- This page is public and indexable.
 - The public Canary Cove site may summarize the offer, but it should not link to this detailed page.
 
 ## Claims To Avoid Unless Reconfirmed
