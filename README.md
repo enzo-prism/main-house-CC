@@ -56,31 +56,31 @@ pnpm preview
 
 ## Project Structure
 
-- [src/App.tsx](/Users/enzo/canary-cove-main-house/src/App.tsx): page composition and section rendering
-- [src/content.ts](/Users/enzo/canary-cove-main-house/src/content.ts): content model, hero stats, pricing data, image references, and supporting copy
-- [src/index.css](/Users/enzo/canary-cove-main-house/src/index.css): global styles, hero system, layout, responsive behavior
-- [index.html](/Users/enzo/canary-cove-main-house/index.html): metadata, share cards, and document shell
-- [public/favicon.svg](/Users/enzo/canary-cove-main-house/public/favicon.svg): favicon
+- [src/App.tsx](src/App.tsx): page composition and section rendering
+- [src/content.ts](src/content.ts): content model, hero stats, pricing data, image references, and supporting copy
+- [src/cove-chrome.tsx](src/cove-chrome.tsx): Canary Cove header/footer chrome, aligned with the current Stay / Rates / Explore nav
+- [src/index.css](src/index.css): global styles, hero system, layout, responsive behavior
+- [index.html](index.html): metadata, share cards, and document shell
+- [public/favicon.svg](public/favicon.svg): favicon
 
 ## Content Model
 
-The page is driven from [src/content.ts](/Users/enzo/canary-cove-main-house/src/content.ts).
+The page is driven from [src/content.ts](src/content.ts).
 
 That file contains:
 
-- `heroStats`
-- `layoutDetails`
-- `pricingSeasons`
-- `galleryMoments`
-- `timeline`
-- `finalNotes`
-- primary image selections and Cloudinary transforms
+- `heroTitle`, `heroLocation`, `heroImage`
+- `summaryHeadline`, `summaryBody`, `atGlance`
+- `whatYouGet`, `whyReturningGuestsOnly`
+- `pricingSeasons`, `pricingIntro`, `damageDepositNote`
+- `spaceMoments`
+- `bookingUrl` (Canary Cove `/book` with Main House defaults)
 
 For normal offer updates, start there before touching layout code.
 
 ## Source of Truth
 
-The current factual source of truth is documented in [docs/content-source-of-truth.md](/Users/enzo/canary-cove-main-house/docs/content-source-of-truth.md).
+The current factual source of truth is documented in [docs/content-source-of-truth.md](docs/content-source-of-truth.md).
 
 Important constraint:
 
@@ -88,7 +88,10 @@ Important constraint:
 
 ## Design Notes
 
-- The hero is full-bleed and intentionally carries the main message.
+- The hero is full-bleed and image-led. The photograph should cover the poster (`object-fit: cover`); do not letterbox it with `contain`.
+- The H1 sits under the photo and should wrap as “Canary Cove / Main House”, not mid-word. Keep the title max-width around `12ch`.
+- Header chrome must match the current Canary Cove nav: Stay, Rates, Explore, Reviews, Getting Here, plus Book and Contact. Do not restore the older eight-item row (Home, Gallery, Experience, Dining, Adventures as first-class pills).
+- `content-split-reverse` stacks copy above the image on small screens so the returning-guests section keeps the same text-first rhythm as “What you get”.
 - The white sections below the hero are meant to feel product-clean rather than editorial or resort-brochure heavy.
 - The pricing block appears early on purpose because this page is a qualification and conversion surface, not just a mood piece.
 
@@ -98,9 +101,11 @@ Before shipping changes:
 
 1. Run `pnpm lint`
 2. Run `pnpm build`
-3. Verify the hero at desktop and mobile sizes
-4. Verify the pricing section reads clearly on mobile
-5. Search for stale claims before publishing:
+3. Verify the hero at desktop and mobile sizes. The photograph should fill the rounded poster with no dark letterbox bars, and the H1 should read as two lines: Canary Cove / Main House.
+4. Verify the header: five stacked pills (Stay, Rates, Explore, Reviews, Getting Here) plus Book/Contact. Open Explore and confirm Experiences, Dining, Adventures, and Gallery. Check the same IA in the mobile menu.
+5. Verify the pricing section reads clearly on mobile.
+6. Verify “Why returning guests only” shows copy above the photo on a 390px viewport.
+7. Search for stale claims before publishing:
 
 ```bash
 rg -n "3 king|three king|up to 10|three couples|chef|docks|boats|San Pedro" -S src index.html

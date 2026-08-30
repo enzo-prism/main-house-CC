@@ -64,8 +64,9 @@ Keep these points central in the page:
 ## Sharing and discovery
 
 - Canonical share URL: `https://mainhouse.canarycove.com`
+- Repeat-guest short link: `https://www.canarycove.com/stay/main-house` (temporary redirect to this page)
 - This page is public and indexable.
-- The public Canary Cove site may summarize the offer, but it should not link to this detailed page.
+- The public Canary Cove site may summarize the offer on `/rates#main-house-accommodations`. `/stay` may include a designed Main House card that uses `/stay/main-house`. Do not use a stray underlined link.
 
 ## Claims To Avoid Unless Reconfirmed
 
@@ -84,8 +85,9 @@ Those ideas may have appeared in earlier drafts, but they are not the current ap
 
 ## Files That Should Stay Aligned
 
-- [src/content.ts](/Users/enzo/canary-cove-main-house/src/content.ts)
-- [src/App.tsx](/Users/enzo/canary-cove-main-house/src/App.tsx)
-- [index.html](/Users/enzo/canary-cove-main-house/index.html)
+- [src/content.ts](src/content.ts)
+- [src/App.tsx](src/App.tsx)
+- [src/cove-chrome.tsx](src/cove-chrome.tsx)
+- [index.html](index.html)
 
 If this offer changes, update those files together rather than patching only one layer.
