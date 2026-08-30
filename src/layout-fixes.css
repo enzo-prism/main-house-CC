@@ -35,6 +35,11 @@
   gap: 0.2rem;
 }
 
+.desktop-nav-pills {
+  /* overflow-x: auto computes overflow-y to auto as well, which clips the Explore menu. */
+  overflow: visible;
+}
+
 .explore-item {
   position: relative;
 }
