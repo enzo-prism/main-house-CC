@@ -60,6 +60,7 @@ pnpm preview
 - [src/content.ts](src/content.ts): content model, hero stats, pricing data, image references, and supporting copy
 - [src/cove-chrome.tsx](src/cove-chrome.tsx): Canary Cove header/footer chrome, aligned with the current Stay / Rates / Explore nav
 - [src/index.css](src/index.css): global styles, hero system, layout, responsive behavior
+- [src/layout-fixes.css](src/layout-fixes.css): overrides imported after `index.css` (hero cover, Explore menu overflow, skip link, mobile split order)
 - [index.html](index.html): metadata, share cards, and document shell
 - [public/favicon.svg](public/favicon.svg): favicon
 
@@ -91,6 +92,7 @@ Important constraint:
 - The hero is full-bleed and image-led. The photograph should cover the poster (`object-fit: cover`); do not letterbox it with `contain`.
 - The H1 sits under the photo and should wrap as “Canary Cove / Main House”, not mid-word. Keep the title max-width around `12ch`.
 - Header chrome must match the current Canary Cove nav: Stay, Rates, Explore, Reviews, Getting Here, plus Book and Contact. Do not restore the older eight-item row (Home, Gallery, Experience, Dining, Adventures as first-class pills).
+- The Explore dropdown is absolutely positioned under the trigger. Keep `.desktop-nav-pills` at `overflow: visible`. `overflow-x: auto` on that pill row also clips the menu vertically.
 - `content-split-reverse` stacks copy above the image on small screens so the returning-guests section keeps the same text-first rhythm as “What you get”.
 - The white sections below the hero are meant to feel product-clean rather than editorial or resort-brochure heavy.
 - The pricing block appears early on purpose because this page is a qualification and conversion surface, not just a mood piece.
@@ -102,7 +104,7 @@ Before shipping changes:
 1. Run `pnpm lint`
 2. Run `pnpm build`
 3. Verify the hero at desktop and mobile sizes. The photograph should fill the rounded poster with no dark letterbox bars, and the H1 should read as two lines: Canary Cove / Main House.
-4. Verify the header: five stacked pills (Stay, Rates, Explore, Reviews, Getting Here) plus Book/Contact. Open Explore and confirm Experiences, Dining, Adventures, and Gallery. Check the same IA in the mobile menu.
+4. Verify the header: five stacked pills (Stay, Rates, Explore, Reviews, Getting Here) plus Book/Contact. Click Explore on desktop and confirm the menu is visible (not clipped inside the pill bar) with Experiences, Dining, Adventures, and Gallery. Check the same IA in the mobile menu.
 5. Verify the pricing section reads clearly on mobile.
 6. Verify “Why returning guests only” shows copy above the photo on a 390px viewport.
 7. Search for stale claims before publishing:
