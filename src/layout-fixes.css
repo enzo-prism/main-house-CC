@@ -1,0 +1,108 @@
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+.desktop-nav-link {
+  min-width: 5.15rem;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-icon-wrap,
+.nav-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-label {
+  gap: 0.2rem;
+}
+
+.explore-item {
+  position: relative;
+}
+
+.explore-chevron {
+  opacity: 0.7;
+}
+
+.explore-menu {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  left: 50%;
+  z-index: 60;
+  display: grid;
+  width: 18rem;
+  padding: 0.45rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 1.25rem;
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  transform: translateX(-50%);
+}
+
+.explore-menu a {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+}
+
+.explore-menu a:hover,
+.explore-menu a:focus-visible {
+  background: rgba(17, 17, 17, 0.04);
+}
+
+.explore-menu-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.explore-menu-caption {
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.hero-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-title {
+  max-width: 12ch;
+}
+
+.content-split-reverse {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+@media (max-width: 70rem) {
+  .content-split-reverse {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 44rem) {
+  .hero-title {
+    max-width: 12ch;
+  }
+}
