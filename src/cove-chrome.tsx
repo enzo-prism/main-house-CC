@@ -1,22 +1,21 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import {
   BedDouble,
   Calendar,
+  ChevronDown,
   Compass,
-  Home,
-  Images,
   Mail,
   MapPin,
   Menu,
   MessageSquare,
-  Utensils,
-  Waves,
+  Tag,
   X,
 } from 'lucide-react'
 
 const COVE_ORIGIN = 'https://www.canarycove.com'
 
 type CoveLink = {
+  caption?: string
   href: string
   label: string
 }
@@ -26,14 +25,33 @@ type CoveCta = CoveLink & {
 }
 
 const navLinks: CoveLink[] = [
-  { label: 'Home', href: `${COVE_ORIGIN}/` },
   { label: 'Stay', href: `${COVE_ORIGIN}/stay` },
-  { label: 'Gallery', href: `${COVE_ORIGIN}/gallery` },
-  { label: 'Experience', href: `${COVE_ORIGIN}/experiences` },
-  { label: 'Dining', href: `${COVE_ORIGIN}/dining` },
-  { label: 'Adventures', href: `${COVE_ORIGIN}/adventures` },
+  { label: 'Rates', href: `${COVE_ORIGIN}/rates` },
   { label: 'Reviews', href: `${COVE_ORIGIN}/about` },
   { label: 'Getting Here', href: `${COVE_ORIGIN}/getting-here` },
+]
+
+const exploreItems: CoveLink[] = [
+  {
+    caption: 'Water, land, and dock days',
+    href: `${COVE_ORIGIN}/experiences`,
+    label: 'Experiences',
+  },
+  {
+    caption: 'Private chef service',
+    href: `${COVE_ORIGIN}/dining`,
+    label: 'Dining',
+  },
+  {
+    caption: 'Reef, fishing, and day trips',
+    href: `${COVE_ORIGIN}/adventures`,
+    label: 'Adventures',
+  },
+  {
+    caption: 'Every photograph of the estate',
+    href: `${COVE_ORIGIN}/gallery`,
+    label: 'Gallery',
+  },
 ]
 
 const navCtas: CoveCta[] = [
@@ -43,21 +61,20 @@ const navCtas: CoveCta[] = [
 
 const footerLinks: CoveLink[] = [
   { label: 'Stay', href: `${COVE_ORIGIN}/stay` },
+  { label: 'Rates', href: `${COVE_ORIGIN}/rates#main-house-accommodations` },
   { label: 'Experiences', href: `${COVE_ORIGIN}/experiences` },
   { label: 'Dining', href: `${COVE_ORIGIN}/dining` },
   { label: 'Adventures', href: `${COVE_ORIGIN}/adventures` },
   { label: 'Reviews', href: `${COVE_ORIGIN}/about` },
+  { label: 'Getting Here', href: `${COVE_ORIGIN}/getting-here` },
   { label: 'Book', href: `${COVE_ORIGIN}/book` },
   { label: 'Contact', href: `${COVE_ORIGIN}/contact` },
 ]
 
 const navIcons = {
-  Home,
   Stay: BedDouble,
-  Gallery: Images,
-  Experience: Compass,
-  Dining: Utensils,
-  Adventures: Waves,
+  Rates: Tag,
+  Explore: Compass,
   Reviews: MessageSquare,
   'Getting Here': MapPin,
   Book: Calendar,
@@ -90,9 +107,31 @@ function NavIcon({ label }: { label: string }) {
   return <Icon aria-hidden="true" className="nav-icon" size={14} />
 }
 
+function CtaLink({
+  item,
+  onClick,
+}: {
+  item: CoveCta
+  onClick?: () => void
+}) {
+  return (
+    <a
+      className={item.variant === 'primary' ? 'nav-cta nav-cta-primary' : 'nav-cta nav-cta-outline'}
+      href={item.href}
+      onClick={onClick}
+    >
+      <NavIcon label={item.label} />
+      <span>{item.label}</span>
+    </a>
+  )
+}
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [exploreOpen, setExploreOpen] = useState(false)
   const menuId = useId()
+  const exploreMenuId = useId()
+  const exploreRef = useRef<HTMLLIElement>(null)
 
   useEffect(() => {
     if (!menuOpen) {
@@ -114,6 +153,32 @@ export function SiteHeader() {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!exploreOpen) {
+      return
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (exploreRef.current && !exploreRef.current.contains(event.target as Node)) {
+        setExploreOpen(false)
+      }
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setExploreOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [exploreOpen])
+
   return (
     <header className="site-header">
       <div className="site-header-inner">
@@ -121,11 +186,53 @@ export function SiteHeader() {
 
         <nav aria-label="Primary navigation" className="desktop-nav">
           <ul className="desktop-nav-pills">
-            {navLinks.map((item) => (
+            {navLinks.slice(0, 2).map((item) => (
               <li key={item.label}>
                 <a className="desktop-nav-link" href={item.href}>
-                  <NavIcon label={item.label} />
-                  <span>{item.label}</span>
+                  <span className="nav-icon-wrap">
+                    <NavIcon label={item.label} />
+                  </span>
+                  <span className="nav-label">{item.label}</span>
+                </a>
+              </li>
+            ))}
+
+            <li className="explore-item" ref={exploreRef}>
+              <button
+                aria-controls={exploreMenuId}
+                aria-expanded={exploreOpen}
+                className="desktop-nav-link explore-trigger"
+                onClick={() => setExploreOpen((open) => !open)}
+                type="button"
+              >
+                <span className="nav-icon-wrap">
+                  <NavIcon label="Explore" />
+                </span>
+                <span className="nav-label">
+                  Explore
+                  <ChevronDown aria-hidden="true" className="explore-chevron" size={12} />
+                </span>
+              </button>
+
+              {exploreOpen ? (
+                <div className="explore-menu" id={exploreMenuId} role="menu">
+                  {exploreItems.map((item) => (
+                    <a href={item.href} key={item.label} role="menuitem">
+                      <span className="explore-menu-label">{item.label}</span>
+                      {item.caption ? <span className="explore-menu-caption">{item.caption}</span> : null}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </li>
+
+            {navLinks.slice(2).map((item) => (
+              <li key={item.label}>
+                <a className="desktop-nav-link" href={item.href}>
+                  <span className="nav-icon-wrap">
+                    <NavIcon label={item.label} />
+                  </span>
+                  <span className="nav-label">{item.label}</span>
                 </a>
               </li>
             ))}
@@ -133,16 +240,7 @@ export function SiteHeader() {
 
           <div className="desktop-nav-ctas">
             {navCtas.map((item) => (
-              <a
-                className={
-                  item.variant === 'primary' ? 'nav-cta nav-cta-primary' : 'nav-cta nav-cta-outline'
-                }
-                href={item.href}
-                key={item.label}
-              >
-                <NavIcon label={item.label} />
-                <span>{item.label}</span>
-              </a>
+              <CtaLink item={item} key={item.label} />
             ))}
           </div>
         </nav>
@@ -171,21 +269,18 @@ export function SiteHeader() {
                   </a>
                 </li>
               ))}
+              {exploreItems.map((item) => (
+                <li key={item.label}>
+                  <a href={item.href} onClick={() => setMenuOpen(false)}>
+                    <span>{item.label}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
 
             <div className="mobile-nav-ctas">
               {navCtas.map((item) => (
-                <a
-                  className={
-                    item.variant === 'primary' ? 'nav-cta nav-cta-primary' : 'nav-cta nav-cta-outline'
-                  }
-                  href={item.href}
-                  key={item.label}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <NavIcon label={item.label} />
-                  <span>{item.label}</span>
-                </a>
+                <CtaLink item={item} key={item.label} onClick={() => setMenuOpen(false)} />
               ))}
             </div>
           </nav>
