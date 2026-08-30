@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   BedDouble,
   Calendar,
@@ -129,9 +130,11 @@ function CtaLink({
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
+  const [explorePos, setExplorePos] = useState({ left: 0, top: 0 })
   const menuId = useId()
   const exploreMenuId = useId()
   const exploreRef = useRef<HTMLLIElement>(null)
+  const exploreMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!menuOpen) {
@@ -153,15 +156,45 @@ export function SiteHeader() {
     }
   }, [menuOpen])
 
+  useLayoutEffect(() => {
+    if (!exploreOpen) {
+      return
+    }
+
+    const update = () => {
+      const trigger = exploreRef.current?.querySelector('.explore-trigger')
+      if (!(trigger instanceof HTMLElement)) {
+        return
+      }
+
+      const rect = trigger.getBoundingClientRect()
+      setExplorePos({
+        left: rect.left + rect.width / 2,
+        top: rect.bottom + 10,
+      })
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [exploreOpen])
+
   useEffect(() => {
     if (!exploreOpen) {
       return
     }
 
     const onPointerDown = (event: PointerEvent) => {
-      if (exploreRef.current && !exploreRef.current.contains(event.target as Node)) {
-        setExploreOpen(false)
+      const target = event.target as Node
+      if (exploreRef.current?.contains(target) || exploreMenuRef.current?.contains(target)) {
+        return
       }
+      setExploreOpen(false)
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -201,6 +234,7 @@ export function SiteHeader() {
               <button
                 aria-controls={exploreMenuId}
                 aria-expanded={exploreOpen}
+                aria-haspopup="menu"
                 className="desktop-nav-link explore-trigger"
                 onClick={() => setExploreOpen((open) => !open)}
                 type="button"
@@ -213,17 +247,6 @@ export function SiteHeader() {
                   <ChevronDown aria-hidden="true" className="explore-chevron" size={12} />
                 </span>
               </button>
-
-              {exploreOpen ? (
-                <div className="explore-menu" id={exploreMenuId} role="menu">
-                  {exploreItems.map((item) => (
-                    <a href={item.href} key={item.label} role="menuitem">
-                      <span className="explore-menu-label">{item.label}</span>
-                      {item.caption ? <span className="explore-menu-caption">{item.caption}</span> : null}
-                    </a>
-                  ))}
-                </div>
-              ) : null}
             </li>
 
             {navLinks.slice(2).map((item) => (
@@ -256,6 +279,26 @@ export function SiteHeader() {
           {menuOpen ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
         </button>
       </div>
+
+      {exploreOpen
+        ? createPortal(
+            <div
+              className="explore-menu"
+              id={exploreMenuId}
+              ref={exploreMenuRef}
+              role="menu"
+              style={{ left: explorePos.left, top: explorePos.top }}
+            >
+              {exploreItems.map((item) => (
+                <a href={item.href} key={item.label} role="menuitem">
+                  <span className="explore-menu-label">{item.label}</span>
+                  {item.caption ? <span className="explore-menu-caption">{item.caption}</span> : null}
+                </a>
+              ))}
+            </div>,
+            document.body,
+          )
+        : null}
 
       {menuOpen ? (
         <div className="mobile-nav-panel" id={menuId}>

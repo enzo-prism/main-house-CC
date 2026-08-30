@@ -36,8 +36,7 @@
 }
 
 .desktop-nav-pills {
-  /* overflow-x: auto computes overflow-y to auto as well, which clips the Explore menu. */
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .explore-item {
@@ -48,11 +47,13 @@
   opacity: 0.7;
 }
 
+.explore-trigger[aria-expanded='true'] .explore-chevron {
+  transform: rotate(180deg);
+}
+
 .explore-menu {
-  position: absolute;
-  top: calc(100% + 0.7rem);
-  left: 50%;
-  z-index: 60;
+  position: fixed;
+  z-index: 80;
   display: grid;
   width: 18rem;
   padding: 0.45rem;
