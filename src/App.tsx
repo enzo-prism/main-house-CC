@@ -78,6 +78,9 @@ function App() {
 
   return (
     <div className="page-shell">
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <SiteHeader />
 
       <div className="hero" id="top">
@@ -96,7 +99,7 @@ function App() {
         </motion.div>
       </div>
 
-      <main>
+      <main id="main-content">
         <section className="section summary-section shell">
           <div className="summary-layout">
             <div className="summary-copy">
@@ -135,7 +138,12 @@ function App() {
             </div>
 
             <figure className="editorial-figure">
-              <img alt="Pool and waterfront at Canary Cove Main House" src={whatYouGetImage} />
+              <img
+                alt="Pool and waterfront at Canary Cove Main House"
+                decoding="async"
+                loading="lazy"
+                src={whatYouGetImage}
+              />
             </figure>
           </div>
         </section>
@@ -145,6 +153,8 @@ function App() {
             <figure className="editorial-figure">
               <img
                 alt="Guests relaxing at the Canary Cove Main House"
+                decoding="async"
+                loading="lazy"
                 src={returningGuestsImage}
               />
             </figure>
@@ -192,7 +202,7 @@ function App() {
                 data-layout={moment.layout}
                 key={moment.title}
               >
-                <img alt={moment.alt} src={moment.image} />
+                <img alt={moment.alt} decoding="async" loading="lazy" src={moment.image} />
                 <figcaption className="space-card-copy">
                   <h3>{moment.title}</h3>
                   <p>{moment.body}</p>
