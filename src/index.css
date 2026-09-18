@@ -699,6 +699,14 @@ img {
   margin-top: 1rem;
 }
 
+.inquiry-prompt {
+  max-width: 34rem;
+  margin: 0.95rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
 .site-footer {
   border-top: 1px solid var(--line-strong);
   background: var(--background);
