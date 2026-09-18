@@ -71,7 +71,10 @@ export const pricingSeasons: PricingSeason[] = [
 
 export const finalHeading = 'Ready to come back?'
 export const finalBody =
-  'If your group has stayed at Canary Cove and you’re planning a reunion, family trip, or larger gathering, the Main House is yours to book. Start with your dates, check availability, and we’ll take it from there.'
+  'If your group has stayed at Canary Cove and you’re planning a reunion, family trip, or larger gathering, the Main House is yours to book.'
+
+export const inquiryPrompt =
+  'When you request availability, include the nature of your inquiry — dates, group size, reunion plans, or questions — and we’ll take it from there.'
 
 export const heroImage = withTransform(
   'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1775486550/IMG_1579_ccfd1d.webp',

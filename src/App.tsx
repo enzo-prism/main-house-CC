@@ -11,6 +11,7 @@ import {
   heroImage,
   heroLocation,
   heroTitle,
+  inquiryPrompt,
   pricingIntro,
   pricingSeasons,
   returningGuestsImage,
@@ -116,6 +117,7 @@ function App() {
                   See seasonal pricing
                 </a>
               </div>
+              <p className="inquiry-prompt">{inquiryPrompt}</p>
             </div>
 
             <div className="glance-section">
@@ -226,6 +228,7 @@ function App() {
                 View full Canary Cove
               </a>
             </div>
+            <p className="inquiry-prompt">{inquiryPrompt}</p>
           </div>
         </section>
       </main>
