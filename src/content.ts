@@ -11,64 +11,123 @@ export const bookingUrl = `${COVE_URL}/book?accommodation=main-house&returning=y
 export const contactUrl = `${COVE_URL}/contact`
 
 // ── Imagery ────────────────────────────────────────────────────────────────
-// Cloudinary originals. Only exteriors, pool, waterfront and grounds are used:
-// none of the Cove's interior photography is labelled as Main House, so the
-// page never presents a room as a Main House suite. No boat photos (boats are
-// not part of the approved offer).
+// Main House photos only. The Cove's current library (www.canarycove.com) is
+// almost entirely the pink single-storey Villa, its crocodile pool and its
+// interiors, so none of it is used here except IMG_1579 (the two-storey house
+// from the water). Every other photo was recovered from the old canarycove.com
+// "Main Villa" gallery (the Main House's former name) and is self-hosted in
+// public/photos/main-house at 480/800px. Provenance and how each was verified:
+// docs/photo-provenance.md. No boat photos (boats are not part of the offer).
 
 export type Photo = {
+  /** Cloudinary original, or a self-hosted base path ("/photos/…/name") with -480/-800.webp files. */
   src: string
   alt: string
-  /** Original pixel width; srcset never asks Cloudinary to upscale past it. */
+  /** Original pixel width; srcsets never ask for more than this. */
   width: number
+  /** Original pixel height (self-hosted photos only; used for aspect hints). */
+  height?: number
   focal?: { x: number; y: number }
 }
 
+const local = (name: string, alt: string, width: number, height: number, focal?: Photo['focal']): Photo => ({
+  src: `/photos/main-house/${name}`,
+  alt,
+  width,
+  height,
+  focal,
+})
+
 export const PHOTOS = {
-  // The two-storey Main House seen from the water.
+  // The two-storey Main House seen from the water (Cloudinary, 2056px).
   house: {
     src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1775486550/IMG_1579_ccfd1d.webp',
     alt: 'The Canary Cove Main House across the lawn and pool, seen from the water',
     width: 2056,
     focal: { x: 50, y: 52 },
   },
-  poolUmbrella: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059670/canarycove-haydeelustudio-521-scaled_ohjnr1.webp',
-    alt: 'Infinity pool with a yellow umbrella and the sea beyond the palms',
-    width: 2560,
-    focal: { x: 50, y: 30 },
-  },
-  poolPalapa: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1767202751/canarycove-haydeelustudio-56_ixnmn0.webp',
-    alt: 'Pool and thatched palapa beside the water',
-    width: 7200,
-    focal: { x: 55, y: 55 },
-  },
-  poolCrocodile: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1785546991/canarycove-album2021-008.png',
-    alt: 'Carved wooden crocodile on the pool deck beside a yellow umbrella',
-    width: 1496,
-    focal: { x: 40, y: 60 },
-  },
-  shadeByTheWater: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1785547016/canarycove-album2021-114.png',
-    alt: 'Chairs under a yellow umbrella on the pool deck with the sea and a palapa beyond',
-    width: 1496,
-    focal: { x: 50, y: 55 },
-  },
-  hammock: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059676/Facilities-Shot_dyshzq.webp',
-    alt: 'Hammock strung between palms on the sand above the water',
-    width: 1500,
-    focal: { x: 50, y: 55 },
-  },
-  waterfrontChairs: {
-    src: 'https://res.cloudinary.com/dhqpqfw6w/image/upload/v1761059674/relax_drhybs.webp',
-    alt: 'Two guests holding hands from yellow chairs facing the sea',
-    width: 800,
-    focal: { x: 50, y: 60 },
-  },
+  poolPalapaBar: local(
+    'pool-palapa-bar',
+    'The Main House infinity pool and its thatched palapa, with the two-storey house behind',
+    800,
+    517,
+    { x: 50, y: 55 },
+  ),
+  poolDeckLoungers: local(
+    'pool-deck-loungers',
+    'Blue loungers and yellow umbrellas on the Main House pool deck, looking out to the sea',
+    800,
+    520,
+  ),
+  upperTerraceView: local(
+    'upper-terrace-view',
+    'The Main House pool deck, palapa and beach seen from the upper terrace',
+    800,
+    498,
+  ),
+  poolDeckHouse: local(
+    'pool-deck-house',
+    'Loungers under yellow umbrellas beside the Main House pool, with the house and its curved stair',
+    800,
+    522,
+    { x: 45, y: 55 },
+  ),
+  beachPalapaHouse: local(
+    'beach-palapa-house',
+    'A thatched palapa on the sand in front of the two-storey Main House',
+    800,
+    520,
+  ),
+  houseFromBeach: local(
+    'house-from-beach',
+    'The full width of the Main House and its pool terrace, seen from the beach',
+    800,
+    311,
+  ),
+  greatRoom: local(
+    'great-room',
+    'The double-height great room with a curved blue sectional and a wall of glass doors to the pool',
+    800,
+    532,
+  ),
+  dining: local('dining', 'The dining table beneath the double-height windows, facing the sea', 800, 517),
+  kitchen: local('kitchen', 'The kitchen island and round bar seating under the gallery', 800, 542),
+  masterSuite: local('master-suite', 'The master suite with a four-poster bed and dark wood ceiling', 800, 512),
+  suiteSitting: local(
+    'suite-sitting-area',
+    'A suite sitting area with sliding doors to a balcony over the sea',
+    800,
+    521,
+  ),
+  suiteTwoQueens: local(
+    'suite-two-queens',
+    'A suite with two beds and sliding doors onto the pool deck',
+    800,
+    478,
+  ),
+  suiteGardenView: local(
+    'suite-garden-view',
+    'A suite with two beds and a sitting area looking out to the palapa and the sea',
+    800,
+    493,
+  ),
+  staircase: local('staircase', 'The curved stone staircase with a wrought-iron rail', 800, 532),
+  suiteBath: local('suite-bath', 'A suite bathroom with a soaking tub, glass-block window and double vanity', 800, 532),
 } satisfies Record<string, Photo>
+
+export type InteriorTile = { photo: Photo; label: string; feature?: boolean }
+
+export const interiors: InteriorTile[] = [
+  { photo: PHOTOS.greatRoom, label: 'The great room', feature: true },
+  { photo: PHOTOS.dining, label: 'Dining' },
+  { photo: PHOTOS.kitchen, label: 'The kitchen' },
+  { photo: PHOTOS.masterSuite, label: 'The master suite' },
+  { photo: PHOTOS.suiteSitting, label: 'Suite sitting area' },
+  { photo: PHOTOS.suiteGardenView, label: 'A suite' },
+  { photo: PHOTOS.suiteTwoQueens, label: 'A suite' },
+  { photo: PHOTOS.staircase, label: 'The staircase' },
+  { photo: PHOTOS.suiteBath, label: 'A suite bath' },
+]
 
 // ── Offer ──────────────────────────────────────────────────────────────────
 

@@ -11,7 +11,8 @@ const delay = (ms: number) => ({ '--enter-delay': `${ms}ms` }) as CSSProperties
 
 const PAGE_ANCHORS = [
   { label: 'The house', href: '#what-you-get' },
-  { label: 'The estate', href: '#the-estate' },
+  { label: 'Outside', href: '#the-estate' },
+  { label: 'Inside', href: '#inside' },
   { label: 'Returning guests', href: '#returning-guests' },
   { label: 'Rates', href: '#pricing' },
   { label: 'Book', href: '#book' },

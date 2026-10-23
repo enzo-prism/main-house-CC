@@ -20,18 +20,35 @@ type CldImageProps = {
 }
 
 /**
- * Responsive <img> for Cloudinary originals. Plain markup so it prerenders;
- * the srcset never requests more pixels than the original holds.
+ * Responsive <img> for Cloudinary originals and the self-hosted Main House
+ * photos. Plain markup so it prerenders; the srcset never requests more
+ * pixels than the original holds.
  */
+// Self-hosted photos (public/photos/…) ship as <base>-480.webp and <base>-800.webp.
+const LOCAL_STEPS = [480, 800]
+
+const sources = (photo: Photo) => {
+  if (photo.src.startsWith('/')) {
+    const widths = LOCAL_STEPS.filter((width) => width <= photo.width)
+    return {
+      src: `${photo.src}-${widths[widths.length - 1]}.webp`,
+      srcSet: widths.map((width) => `${photo.src}-${width}.webp ${width}w`).join(', '),
+    }
+  }
+  const widths = Array.from(new Set(STEPS.filter((width) => width < photo.width).concat(Math.min(photo.width, 2560))))
+  return {
+    src: cld(photo.src, widths[Math.min(2, widths.length - 1)]),
+    srcSet: widths.map((width) => `${cld(photo.src, width)} ${width}w`).join(', '),
+  }
+}
+
 export function CldImage({ photo, sizes, className, style, priority = false, fill = true, alt }: CldImageProps) {
-  const widths = STEPS.filter((width) => width < photo.width).concat(Math.min(photo.width, 2560))
-  const unique = Array.from(new Set(widths))
-  const fallback = unique[Math.min(2, unique.length - 1)]
+  const { src, srcSet } = sources(photo)
 
   return (
     <img
-      src={cld(photo.src, fallback)}
-      srcSet={unique.map((width) => `${cld(photo.src, width)} ${width}w`).join(', ')}
+      src={src}
+      srcSet={srcSet}
       sizes={sizes}
       alt={alt ?? photo.alt}
       loading={priority ? 'eager' : 'lazy'}

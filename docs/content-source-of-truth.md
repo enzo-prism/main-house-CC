@@ -96,14 +96,17 @@ The redesign keeps every approved line above verbatim. It adds short connective 
   3. The Canary Cove team reviews the request and replies.
 - Rate picker: each month maps to its season and nightly rate exactly as listed above. The readout always repeats the separate $10,000 deposit.
 
+- "Outside" and "Inside the house" add short connective copy. Outside: "Two storeys on the beach…", "Palapa shade on the beach…". Inside: "Under one roof, with room to spread out" and "Five suites and shared living spaces on two floors". These describe what the photos show, and they use the approved "under one roof" line.
+
 The page lists no amenities beyond pool, waterfront, grounds, and shared outdoor spaces. If Canary Cove confirms more, add them to this file first.
 
 ## Imagery
 
-- The Main House is the two-storey house in Cloudinary `IMG_1579_ccfd1d`. It is the hero arch and the closing photo.
-- All other photos are estate exteriors, pool, waterfront, and grounds, with neutral captions.
-- No interior photo is presented as a Main House suite. None of the Cove's interiors are labelled Main House.
-- No boat photos.
+- **Only photos of the Main House.** Never use photos of the Villa, the pink single-storey house with the crocodile pool. See [photo-provenance.md](photo-provenance.md).
+- **Hero and closing:** Cloudinary `IMG_1579_ccfd1d`, the two-storey house seen from the water.
+- **Exteriors and interiors:** the old canarycove.com "Main Villa" gallery, about 2017. Ask Canary Cove to confirm the furnishings are still current.
+- **Room captions are neutral:** The great room, Dining, The kitchen, The master suite, Suite sitting area, A suite, The staircase, A suite bath.
+- No boat photos, and no gym or billiards close-ups.
 
 ## Files That Should Stay Aligned
 

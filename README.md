@@ -30,7 +30,8 @@ The page is a chapter of www.canarycove.com and uses the Cove's **"Sand, reef, a
 | The offer: the approved summary line, lit word by word | `sections/offer.tsx` | |
 | What you get. The whole estate as one home base, with a numbered ledger. | `sections/offer.tsx` | `#what-you-get` |
 | Highlights marquee | `sections/estate.tsx` | |
-| The estate: a wide pool plate and staggered captioned photos | `sections/estate.tsx` | `#the-estate` |
+| Outside: the house from the beach, on the sand, the pool deck, and the view from the upper terrace | `sections/estate.tsx` | `#the-estate` |
+| Inside the house: the great room and eight rooms, with a lightbox (arrow keys, and focus returns to the last photo shown) | `sections/interiors.tsx` | `#inside` |
 | Why returning guests only (the one reef band), plus Best for | `sections/returning.tsx` | `#returning-guests` |
 | Seasonal rates. A month picker drives a live rate readout. Below it sit the season ledger and the damage deposit. | `sections/rates.tsx` | `#pricing` |
 | How to book (three steps) | `sections/book.tsx` | `#book` |
@@ -40,12 +41,16 @@ The page is a chapter of www.canarycove.com and uses the Cove's **"Sand, reef, a
 
 ### Imagery rules
 
-All photos are Cloudinary originals listed in `PHOTOS` in [src/content.ts](src/content.ts). [src/components/cld-image.tsx](src/components/cld-image.tsx) renders them with a srcset that never asks for more pixels than the original has.
+**Use only photos of the Main House.** That is the two-storey pale-yellow house with its own long infinity pool and a thatched palapa standing in the water. The Villa is the pink single-storey house with the crocodile pool, and its photos must never appear here.
 
-- The Main House is the two-storey house in `IMG_1579`, seen from the water. It is the hero and the closing photo.
-- Use only exteriors, pool, waterfront, and grounds. No Cove interior photo is labelled as Main House, so do not present any room as a Main House suite.
-- No boat photos. Boats are not part of the approved offer.
-- Do not use the cream-era album shots of the villa (`album2021-124` and `album2021-127`). They show the villa before it was painted pink and read as a different building.
+How each photo was identified is in [docs/photo-provenance.md](docs/photo-provenance.md). The `PHOTOS` registry is in [src/content.ts](src/content.ts).
+
+- **Hero and closing photo:** `IMG_1579`, the house seen from the water. It comes from Cloudinary at 2056px.
+- **The other 15 photos** were recovered from the old canarycove.com "Main Villa" gallery (the Main House's former name). They are self-hosted in `public/photos/main-house/` as `-480.webp` and `-800.webp`.
+- These photos are only 800px wide. Keep their frames close to 3:2, keep parallax overscale at or below 1.08, and keep tiles around 400 CSS px wide.
+- [src/components/cld-image.tsx](src/components/cld-image.tsx) serves both kinds of image. A path that starts with `/` is a self-hosted base path.
+- **Do not reuse the www.canarycove.com photo library.** Apart from `IMG_1579`, it is entirely the Villa.
+- No boat photos, and no gym or billiards close-ups.
 
 ## Stack
 

@@ -41,9 +41,11 @@ export function WhatYouGet() {
 
         <div className="grid gap-12 lg:grid-cols-12 lg:items-end lg:gap-16">
           <div className="relative lg:col-span-7">
-            <div data-reveal="clip" className="media-frame relative aspect-[4/5] w-full sm:aspect-[5/4] lg:aspect-[4/5]">
-              <Parallax amount={8}>
-                <CldImage photo={PHOTOS.poolPalapa} sizes="(min-width: 1024px) 56vw, 100vw" />
+            {/* The Main House pool photos are 800px originals: keep frames close
+                to their 3:2 shape and the parallax overscale small. */}
+            <div data-reveal="clip" className="media-frame relative aspect-[3/2] w-full">
+              <Parallax amount={4} scale={1.08}>
+                <CldImage photo={PHOTOS.poolPalapaBar} sizes="(min-width: 1024px) 56vw, 100vw" />
               </Parallax>
             </div>
             <div
@@ -51,8 +53,8 @@ export function WhatYouGet() {
               style={{ '--reveal-delay': '250ms' } as CSSProperties}
               className="media-frame absolute -bottom-8 right-4 hidden aspect-square w-[38%] border-[6px] border-surface shadow-[var(--shadow-lift)] sm:block lg:-right-10"
             >
-              <Parallax amount={12}>
-                <CldImage photo={PHOTOS.hammock} sizes="(min-width: 1024px) 20vw, 38vw" />
+              <Parallax amount={6} scale={1.08}>
+                <CldImage photo={PHOTOS.poolDeckLoungers} sizes="(min-width: 1024px) 20vw, 38vw" />
               </Parallax>
             </div>
           </div>

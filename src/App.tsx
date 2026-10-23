@@ -5,6 +5,7 @@ import { SmoothScroll } from '@/components/motion/smooth-scroll'
 import { BookingSteps, Closing } from '@/sections/book'
 import { Estate, OfferMarquee } from '@/sections/estate'
 import { Hero } from '@/sections/hero'
+import { Interiors } from '@/sections/interiors'
 import { Statement, WhatYouGet } from '@/sections/offer'
 import { Rates } from '@/sections/rates'
 import { ReturningGuests } from '@/sections/returning'
@@ -25,6 +26,7 @@ export default function App() {
         <WhatYouGet />
         <OfferMarquee />
         <Estate />
+        <Interiors />
         <ReturningGuests />
         <Rates />
         <BookingSteps />
