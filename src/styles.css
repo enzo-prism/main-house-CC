@@ -1,0 +1,963 @@
+@import "tailwindcss";
+
+
+/* Overlay z-index scale (single source of truth):
+   page content 0–10 · sticky page rails 20 · site header 50 ·
+   desktop dropdown panels (popover) 60 · mobile nav overlay (sheet) 80 ·
+   dialogs incl. site search (dialog) 90 · skip link 100. */
+
+/* Self-hosted faces. SF Pro subsets match www.canarycove.com
+   (canary-cove-alpha/font/subset); Instrument Serif is the OFL face from
+   @fontsource. Both are preloaded in index.html. */
+@font-face {
+  font-family: "SF Pro Cove";
+  src: url("/fonts/SF-Pro-Display-Regular.subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SF Pro Cove";
+  src: url("/fonts/SF-Pro-Display-Medium.subset.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SF Pro Cove";
+  src: url("/fonts/SF-Pro-Display-Semibold.subset.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SF Pro Cove";
+  src: url("/fonts/SF-Pro-Display-Bold.subset.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-latin-400-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Canary Cove design system — "Sand, reef, and canary". Ported verbatim
+   from canary-cove-alpha/app/globals.css so the Main House reads as a
+   chapter of www.canarycove.com. Keep the two in step.
+   Warm sand paper, deep reef ink, lagoon teal, and a canary-yellow accent
+   used sparingly. Display type is Instrument Serif; UI and body stay in
+   SF Pro. See docs/design-system.md for the full contract.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --font-sf: "SF Pro Cove";
+  --font-serif: "Instrument Serif";
+
+  /* Palette */
+  --sand-50: #fcfaf5;
+  --sand-100: #f7f2e9;
+  --sand-200: #efe7d8;
+  --sand-300: #e3d8c4;
+  --sand-400: #cdbfa5;
+  --ink-900: #0d2327;
+  --ink-800: #143236;
+  --ink-700: #1f4448;
+  --ink-500: #4f6567;
+  --lagoon-700: #155e62;
+  --lagoon-500: #1f8a8a;
+  --lagoon-300: #7cc8c2;
+  /* Canary and lime come straight from the official logo (#FFEB00 / #6EB53E);
+     the UI canary is a hair softer so large fills don't glare. */
+  --canary-400: #ffe41a;
+  --canary-500: #f2c900;
+  --lime-500: #6eb53e;
+  --lime-700: #3f7f22;
+  --coral-400: #e8957f;
+  --reef-950: #081a1d;
+  --reef-900: #0c2428;
+
+  --background: var(--sand-100);
+  --foreground: var(--ink-900);
+
+  --surface: var(--sand-50);
+  --surface-elevated: var(--sand-200);
+  --surface-muted: #ece3d2;
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--sand-50);
+  --popover-foreground: var(--foreground);
+
+  --primary: var(--ink-900);
+  --primary-foreground: var(--sand-50);
+
+  --secondary: var(--sand-200);
+  --secondary-foreground: var(--ink-900);
+
+  --muted: var(--sand-200);
+  /* ~5.6:1 on --background, ~6:1 on --surface */
+  --muted-foreground: #52625f;
+
+  --accent: var(--sand-200);
+  --accent-foreground: var(--ink-900);
+
+  --lagoon: var(--lagoon-700);
+  --lagoon-foreground: var(--sand-50);
+  --canary: var(--canary-400);
+  --canary-foreground: var(--ink-900);
+  --coral: var(--coral-400);
+  --reef: var(--reef-900);
+  --reef-foreground: #f3eee4;
+
+  --destructive: #a63d2a;
+  --destructive-foreground: var(--sand-50);
+
+  --border: #dcd0bb;
+  --input: #d3c6ae;
+  --ring: var(--lagoon-700);
+
+
+
+  --radius: 1rem;
+  --radius-media: 1.25rem;
+  /* Live height of the sticky site header, republished by components/header.tsx
+     on every resize. This value is the pre-hydration fallback, so anything
+     pinned below the header never overlaps it on the first paint. */
+  --site-header-height: 73px;
+  --shadow-soft: 0 30px 80px -20px rgba(13, 35, 39, 0.18);
+  --shadow-subtle: 0 14px 40px -12px rgba(13, 35, 39, 0.14);
+  --shadow-lift: 0 40px 100px -30px rgba(13, 35, 39, 0.35);
+
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 3rem;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 220ms;
+  --dur-base: 480ms;
+  --dur-slow: 900ms;
+  --dur-reveal: 1100ms;
+
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.14 0 0 0 0 0.15 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+
+@theme inline {
+  --font-sans: var(--font-sf), "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI",
+    sans-serif;
+  --font-display: var(--font-serif), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, "Roboto Mono", monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-media: var(--radius-media);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-muted: var(--surface-muted);
+  --color-lagoon: var(--lagoon);
+  --color-lagoon-foreground: var(--lagoon-foreground);
+  --color-lagoon-bright: var(--lagoon-500);
+  --color-lagoon-soft: var(--lagoon-300);
+  --color-canary: var(--canary);
+  --color-canary-deep: var(--canary-500);
+  --color-canary-foreground: var(--canary-foreground);
+  --color-coral: var(--coral);
+  --color-lime: var(--lime-500);
+  --color-lime-deep: var(--lime-700);
+  --color-reef: var(--reef);
+  --color-reef-deep: var(--reef-950);
+  --color-reef-foreground: var(--reef-foreground);
+  --color-sand: var(--sand-100);
+  --color-sand-light: var(--sand-50);
+  --color-sand-deep: var(--sand-200);
+  --color-ink: var(--ink-900);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* `overflow-x: clip`, never `hidden`. Both contain horizontal overflow, but
+     `hidden` forces `overflow-y` to `auto`, which turns html/body into scroll
+     containers and silently kills `position: sticky` for every descendant -
+     the site header and the gallery filter bar included. `clip` creates no
+     scrollport, so sticky keeps resolving against the viewport. */
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "liga" on, "cv11" on, "ss01" on;
+    overflow-x: clip;
+    background-image: var(--grain);
+    background-size: 180px 180px;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    overflow-x: clip;
+  }
+
+  /* Anchor targets land 12px below the live sticky header. This lives on the
+     targets (scroll-margin), not on <html> (scroll-padding): a page-wide
+     scroll-padding made the browser treat the sticky header's own buttons as
+     hidden, so focusing them (Shift+Tab, dialog focus restore) scrolled the
+     page up by hundreds of pixels. Sections that need extra room set
+     --anchor-extra. */
+  [id] {
+    scroll-margin-top: calc(var(--site-header-height) + 12px + var(--anchor-extra, 0px));
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--canary-400) 55%, transparent);
+    color: var(--ink-900);
+  }
+
+  /* Lenis smooth scrolling (components/motion/smooth-scroll.tsx). */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis:not(.lenis-autoToggle).lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+}
+
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    transform: translate3d(0, 115%, 0) rotate(3deg);
+  }
+  to {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes clip-up {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes caustics {
+  0% {
+    background-position: 0% 0%, 100% 0%;
+  }
+  100% {
+    background-position: 100% 100%, 0% 100%;
+  }
+}
+
+@layer components {
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  :where(.font-display) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+  }
+
+  :where(.text-hero) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: clamp(3.1rem, 9.2vw, 9.25rem);
+    line-height: 0.9;
+    letter-spacing: -0.025em;
+  }
+
+  :where(.text-display) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: clamp(2.75rem, 6.4vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  :where(.text-section) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: clamp(2.1rem, 4.2vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  :where(.text-title) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: clamp(1.6rem, 2.3vw, 2.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  :where(.text-lede) {
+    font-size: clamp(1.05rem, 1.25vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--muted-foreground);
+    text-wrap: pretty;
+  }
+
+  :where(.text-body) {
+    @apply text-[15px] text-muted-foreground sm:text-base;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  :where(.eyebrow) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  :where(.eyebrow)::before {
+    content: "";
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
+    transform-origin: left;
+    transition: transform var(--dur-slow) var(--ease-out-expo) calc(var(--reveal-delay, 0ms) + 150ms);
+  }
+
+  html.js [data-reveal]:not([data-revealed]) .eyebrow::before,
+  html.js .eyebrow[data-reveal]:not([data-revealed])::before {
+    transform: scaleX(0);
+  }
+
+  .eyebrow-plain::before {
+    display: none;
+  }
+
+  :where(.italic-accent) {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-synthesis: none;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  :where(.frosted-panel) {
+    background-color: color-mix(in srgb, var(--sand-50) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    backdrop-filter: blur(20px) saturate(1.3);
+    box-shadow: var(--shadow-subtle);
+  }
+
+  :where(.surface-panel) {
+    @apply rounded-[1.75rem] border border-border/70 bg-surface;
+    box-shadow: var(--shadow-soft);
+  }
+
+  :where(.surface-inset) {
+    @apply rounded-[1.25rem] border border-border/70 bg-surface/70;
+  }
+
+  .surface-reef {
+    background-color: var(--reef-900);
+    color: var(--reef-foreground);
+    background-image: var(--grain),
+      radial-gradient(120% 80% at 85% 0%, rgba(31, 138, 138, 0.28) 0%, transparent 60%),
+      radial-gradient(90% 70% at 0% 100%, rgba(21, 94, 98, 0.35) 0%, transparent 60%);
+  }
+
+
+  .page-wash {
+    background-image: var(--grain), linear-gradient(180deg, var(--sand-50) 0%, var(--sand-100) 40%, var(--sand-100) 100%);
+  }
+
+  :where(.hairline) {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 12%, var(--border) 88%, transparent);
+  }
+
+  :where(.media-frame) {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-media);
+    background: var(--sand-200);
+    isolation: isolate;
+  }
+
+  :where(.arch) {
+    border-radius: 999px 999px var(--radius-media) var(--radius-media);
+  }
+
+  /* ── Layout helpers ──────────────────────────────────────────────────── */
+  :where(.flow) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flow-space, var(--space-sm));
+  }
+
+  .flow-xs {
+    --flow-space: clamp(0.5rem, 0.8vw, 0.75rem);
+  }
+
+  .flow-sm {
+    --flow-space: clamp(0.75rem, 1vw, 1rem);
+  }
+
+  .flow-md {
+    --flow-space: clamp(1rem, 1.4vw, 1.5rem);
+  }
+
+  .flow-lg {
+    --flow-space: clamp(1.5rem, 1.8vw, 2rem);
+  }
+
+  .flow-xl {
+    --flow-space: clamp(2rem, 2.4vw, 2.75rem);
+  }
+
+}
+
+@layer utilities {
+  /* Dark reef bands lighten the muted text roles inside them. Kept in the
+     utilities layer so it beats the role and color utilities it overrides. */
+  .surface-reef .text-muted-foreground,
+  .surface-reef .eyebrow,
+  .surface-reef .text-lede,
+  .surface-reef .text-body {
+    color: rgba(243, 238, 228, 0.72);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring/60 focus-visible:ring-offset-background;
+  }
+
+  .focus-ring-within {
+    @apply has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-ring/60 has-[:focus-visible]:ring-offset-background;
+  }
+
+  /* ── Links ───────────────────────────────────────────────────────────── */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    transition: background-size 600ms var(--ease-out-expo);
+    padding-bottom: 2px;
+  }
+
+  .link-underline:hover,
+  .link-underline:focus-visible,
+  .link-underline[aria-current="page"] {
+    background-size: 100% 1px;
+    background-position: 0% 100%;
+  }
+
+  .link-underline-static {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0% 100%;
+    padding-bottom: 2px;
+    transition: background-size 600ms var(--ease-out-expo);
+  }
+
+  .link-underline-static:hover {
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+  }
+
+  /* Text roll used inside CTA buttons (components/ui/cta-link.tsx). */
+  .roll {
+    position: relative;
+    display: inline-flex;
+    overflow: hidden;
+    line-height: 1.25;
+  }
+
+  .roll > span {
+    display: inline-block;
+    transition: transform 560ms var(--ease-out-expo);
+  }
+
+  .roll > span + span {
+    position: absolute;
+    inset: 0;
+    transform: translate3d(0, 110%, 0);
+  }
+
+  .group:hover .roll > span:first-child,
+  .group:focus-visible .roll > span:first-child {
+    transform: translate3d(0, -110%, 0);
+  }
+
+  .group:hover .roll > span + span,
+  .group:focus-visible .roll > span + span {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .arrow-nudge {
+    transition: transform 560ms var(--ease-out-expo);
+  }
+
+  .group:hover .arrow-nudge,
+  .group:focus-visible .arrow-nudge {
+    transform: translate3d(4px, 0, 0);
+  }
+
+  .group:hover .arrow-nudge-diag,
+  .group:focus-visible .arrow-nudge-diag {
+    transform: translate3d(2px, -2px, 0);
+  }
+
+  /* Media zoom on hover, for linked cards. */
+  .zoom-media img {
+    transition: transform 1400ms var(--ease-out-expo);
+  }
+
+  .group:hover .zoom-media img,
+  .group:focus-visible .zoom-media img {
+    transform: scale(1.045);
+  }
+
+  /* ── Motion: scroll reveals ──────────────────────────────────────────────
+     Elements opt in with data-reveal="up|fade|left|right|scale|blur|clip|
+     clip-x|stagger|words". components/motion/reveal-observer.tsx sets
+     data-revealed when they enter the viewport. Hidden states only apply once
+     the inline boot script has put `js` on <html>, so no-JS visitors, crawlers
+     and print always see full content. Optional per-element delay:
+     style={{ "--reveal-delay": "120ms" }}. */
+  html.js [data-reveal] {
+    transition-property: opacity, transform, clip-path, filter;
+    transition-duration: var(--dur-reveal);
+    transition-timing-function: var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  html.js [data-reveal="up"]:not([data-revealed]) {
+    opacity: 0;
+    transform: translate3d(0, 2.25rem, 0);
+  }
+
+  html.js [data-reveal="fade"]:not([data-revealed]) {
+    opacity: 0;
+  }
+
+  html.js [data-reveal="left"]:not([data-revealed]) {
+    opacity: 0;
+    transform: translate3d(-2.5rem, 0, 0);
+  }
+
+  html.js [data-reveal="right"]:not([data-revealed]) {
+    opacity: 0;
+    transform: translate3d(2.5rem, 0, 0);
+  }
+
+  html.js [data-reveal="scale"]:not([data-revealed]) {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  html.js [data-reveal="blur"]:not([data-revealed]) {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translate3d(0, 1rem, 0);
+  }
+
+  /* Clip wipes are applied to the observed element's children, never the
+     element itself: Chrome's IntersectionObserver honours a target's own
+     clip-path, so a fully clipped target would never report as visible. */
+  html.js [data-reveal="clip"] > *,
+  html.js [data-reveal="clip-x"] > * {
+    transition: clip-path 1500ms var(--ease-in-out-quart) var(--reveal-delay, 0ms);
+  }
+
+  html.js [data-reveal="clip"]:not([data-revealed]) > * {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  html.js [data-reveal="clip-x"]:not([data-revealed]) > * {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  /* Media inside a clip reveal settles from a slight zoom. */
+  html.js [data-reveal^="clip"] img {
+    transition: transform 2000ms var(--ease-out-expo) var(--reveal-delay, 0ms);
+  }
+
+  html.js [data-reveal^="clip"]:not([data-revealed]) img {
+    transform: scale(1.18);
+  }
+
+  /* Staggered children: each direct child rises in turn. Children set
+     style={{ "--stagger-index": i }}. */
+  html.js [data-reveal="stagger"] > * {
+    transition: opacity var(--dur-reveal) var(--ease-out-expo), transform var(--dur-reveal) var(--ease-out-expo);
+    transition-delay: calc(var(--reveal-delay, 0ms) + var(--stagger-index, 0) * var(--stagger-step, 80ms));
+  }
+
+  html.js [data-reveal="stagger"]:not([data-revealed]) > * {
+    opacity: 0;
+    transform: translate3d(0, 1.75rem, 0);
+  }
+
+  /* Keyboard focus never lands on something still mid-reveal. */
+  html.js [data-reveal]:focus-within,
+  html.js [data-reveal]:focus-within > * {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  /* SplitText (components/motion/split-text.tsx): masked words rise. */
+  .split-word {
+    display: inline-block;
+    overflow: clip;
+    vertical-align: top;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    padding-right: 0.04em;
+    margin-right: -0.04em;
+  }
+
+  .split-word > span {
+    display: inline-block;
+    transition: transform 1150ms var(--ease-out-expo);
+    transition-delay: calc(var(--reveal-delay, 0ms) + var(--word-index, 0) * var(--word-step, 55ms));
+  }
+
+  html.js [data-reveal="words"]:not([data-revealed]) .split-word > span {
+    transform: translate3d(0, 115%, 0) rotate(3deg);
+  }
+
+  /* Load-time entrances (hero copy) that run without waiting for JS. */
+  .enter-up {
+    animation: fade-up 1100ms var(--ease-out-expo) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  .enter-fade {
+    animation: fade-in 1400ms var(--ease-out-expo) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  .enter-words .split-word > span {
+    animation: rise-in 1200ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--enter-delay, 0ms) + var(--word-index, 0) * var(--word-step, 70ms));
+    transition: none;
+  }
+
+  .enter-clip {
+    animation: clip-up 1500ms var(--ease-in-out-quart) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  .enter-clip img {
+    animation: settle 2200ms var(--ease-out-expo) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  .ken-burns {
+    animation: ken-burns 10s var(--ease-out-quart) both;
+  }
+
+  .marquee-track {
+    animation: var(--animate-marquee);
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  .scroll-cue {
+    animation: scroll-cue 2.4s var(--ease-in-out-quart) infinite;
+  }
+
+  .spin-slow {
+    animation: spin-slow 24s linear infinite;
+  }
+
+  /* Decorative badges turn with page scroll instead of spinning forever
+     (CSS scroll-driven animation; static where unsupported). */
+  @supports (animation-timeline: scroll()) {
+    .spin-scroll {
+      animation: spin-slow linear both;
+      animation-timeline: scroll(root);
+      animation-duration: 1ms;
+    }
+  }
+
+  .float-y {
+    animation: float-y 6s ease-in-out infinite;
+  }
+
+  .caustics {
+    background-image: radial-gradient(60% 40% at 30% 30%, rgba(124, 200, 194, 0.18), transparent 70%),
+      radial-gradient(50% 50% at 70% 60%, rgba(255, 228, 26, 0.08), transparent 70%);
+    background-size: 200% 200%, 220% 220%;
+    animation: caustics 18s ease-in-out infinite alternate;
+  }
+
+}
+
+/* Reduced motion: every decorative animation and reveal resolves to its final
+   state. Scroll-linked transforms in components/motion/* check the same
+   preference in JS. */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal],
+  html.js [data-reveal] > *,
+  html.js [data-reveal] .split-word > span,
+  html.js [data-reveal^="clip"] img {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  html.js [data-reveal] .eyebrow::before,
+  html.js .eyebrow[data-reveal]::before {
+    transform: none !important;
+  }
+
+  .enter-up,
+  .enter-fade,
+  .enter-clip,
+  .enter-clip img,
+  .enter-words .split-word > span,
+  .ken-burns,
+  .marquee-track,
+  .scroll-cue,
+  .spin-slow,
+  .spin-scroll,
+  .float-y,
+  .caustics {
+    animation: none !important;
+  }
+
+
+
+  .roll > span,
+  .arrow-nudge,
+  .zoom-media img,
+  .link-underline {
+    transition: none !important;
+  }
+}
+
+@media print {
+  html.js [data-reveal],
+  html.js [data-reveal] > *,
+  html.js [data-reveal] .split-word > span {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Main House additions (not in the Cove stylesheet).
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Radix popover / dialog entrances (the Cove gets these from tw-animate-css). */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nav-panel[data-state="open"] {
+  animation: panel-in 420ms var(--ease-out-expo) both;
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+
+.nav-sheet[data-state="open"] {
+  animation: sheet-in 320ms var(--ease-out-expo) both;
+}
+
+/* Season colour roles for the rate calendar. */
+:root {
+  --season-low: var(--lagoon-300);
+  --season-high: var(--coral-400);
+  --season-peak: var(--canary-400);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-panel[data-state="open"],
+  .nav-sheet[data-state="open"] {
+    animation: none !important;
+  }
+}
