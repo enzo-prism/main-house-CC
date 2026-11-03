@@ -4,6 +4,12 @@ export const INQUIRY_FORM_NAME = 'main_house_inquiry'
 
 export const FORM_ENDPOINT = import.meta.env.VITE_FORM_ENDPOINT ?? 'https://formspree.io/f/xvzarybk'
 
+export const LEAD_FORM_SITE = 'main_house'
+export const LEAD_FORM_ENV = 'prod'
+export const LEAD_FORM_SUBJECT = 'Main House inquiry'
+export const LEAD_FORM_ACCOMMODATION = 'main-house'
+export const LEAD_FORM_RETURNING = 'yes'
+
 export type LeadSubmitResult = {
   ok: boolean
   status: number
@@ -20,8 +26,11 @@ export function shouldPostLeadForm(hostname?: string) {
 }
 
 export function tagLeadFormBody(body: FormData) {
-  body.set('site', 'main_house')
-  body.set('env', 'prod')
+  body.set('site', LEAD_FORM_SITE)
+  body.set('env', LEAD_FORM_ENV)
+  body.set('_subject', LEAD_FORM_SUBJECT)
+  body.set('accommodation', LEAD_FORM_ACCOMMODATION)
+  body.set('returning', LEAD_FORM_RETURNING)
   return body
 }
 

@@ -48,6 +48,30 @@ describe('Google Analytics host gating', () => {
     expect(document.querySelector('script[data-ga4="gtag"]')).toBeNull()
     expect(document.querySelector('script[src*="googletagmanager.com/gtag/js"]')).toBeNull()
   })
+
+  it('queues Arguments objects and disables the automatic page_view', () => {
+    delete window.gtag
+    window.dataLayer = []
+    loadGoogleAnalytics('mainhouse.canarycove.com')
+
+    expect(window.dataLayer?.length).toBeGreaterThan(0)
+    for (const entry of window.dataLayer ?? []) {
+      expect(Object.prototype.toString.call(entry)).toBe('[object Arguments]')
+    }
+
+    const queued = (window.dataLayer ?? []).map((entry) => Array.prototype.slice.call(entry as IArguments))
+    expect(queued.some((entry) => entry[0] === 'js')).toBe(true)
+    expect(queued).toContainEqual(['config', GA_MEASUREMENT_ID, { send_page_view: false }])
+    expect(
+      queued.some((entry) => {
+        const params = entry[2] as { send_page_view?: boolean } | undefined
+        return entry[0] === 'config' && params?.send_page_view === true
+      }),
+    ).toBe(false)
+
+    document.querySelector('script[data-ga4="gtag"]')?.remove()
+    delete window.gtag
+  })
 })
 
 describe('page_view', () => {
@@ -61,10 +85,27 @@ describe('page_view', () => {
     resetPageViewTracking()
   })
 
-  it('strips the query string and hash from page_location and page_path', () => {
+  it('keeps attribution params and drops other query keys and the hash', () => {
     expect(
       buildPageViewParams(
-        new URL('https://mainhouse.canarycove.com/book?utm_source=newsletter&guest=test#form'),
+        new URL(
+          'https://mainhouse.canarycove.com/book?utm_source=newsletter&utm_medium=email&utm_campaign=reunion&utm_id=spring&gclid=TestGclid&gbraid=TestGbraid&wbraid=TestWbraid&name=Test%20Guest&email=test.guest@example.test&guest=test#form',
+        ),
+        'Book',
+      ),
+    ).toEqual({
+      page_location:
+        'https://mainhouse.canarycove.com/book?utm_source=newsletter&utm_medium=email&utm_campaign=reunion&utm_id=spring&gclid=TestGclid&gbraid=TestGbraid&wbraid=TestWbraid',
+      page_path:
+        '/book?utm_source=newsletter&utm_medium=email&utm_campaign=reunion&utm_id=spring&gclid=TestGclid&gbraid=TestGbraid&wbraid=TestWbraid',
+      page_title: 'Book',
+    })
+  })
+
+  it('drops PII query keys when no attribution params are present', () => {
+    expect(
+      buildPageViewParams(
+        new URL('https://mainhouse.canarycove.com/book?name=Test%20Guest&email=test.guest@example.test#form'),
         'Book',
       ),
     ).toEqual({
@@ -96,6 +137,15 @@ describe('page_view', () => {
     sendPageView()
     expect(gtag).toHaveBeenCalledTimes(2)
     stop()
+  })
+
+  it('does not send a second page_view when tracking is started twice', () => {
+    const gtag = mockGtag()
+    const stopFirst = startPageViewTracking()
+    const stopSecond = startPageViewTracking()
+    expect(gtag).toHaveBeenCalledTimes(1)
+    stopFirst()
+    stopSecond()
   })
 
   it('does not send a page_view for in-page hash changes', () => {

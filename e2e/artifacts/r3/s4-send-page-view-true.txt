@@ -1,0 +1,67 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (13 tests | 1 failed | 12 skipped) 15ms
+   ↓ Google Analytics host gating > loads only on exact production Main House hostnames
+   ↓ Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept
+   ↓ Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept
+   ↓ Google Analytics host gating > defaults the measurement ID to the shared Canary Cove property
+   ↓ Google Analytics host gating > does not inject the gtag script on a preview hostname
+   × Google Analytics host gating > queues Arguments objects and disables the automatic page_view 14ms
+     → expected [ …(3) ] to deep equally contain [ 'config', 'G-JD6CV2CFYS', { …(1) } ]
+   ↓ page_view > keeps attribution params and drops other query keys and the hash
+   ↓ page_view > drops PII query keys when no attribution params are present
+   ↓ page_view > fires exactly one page_view on the initial route and one more on a path change
+   ↓ page_view > does not send a second page_view when tracking is started twice
+   ↓ page_view > does not send a page_view for in-page hash changes
+   ↓ generate_lead params > keeps form_name and drops PII keys
+   ↓ generate_lead params > never forwards PII on generate_lead
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/analytics.test.ts > Google Analytics host gating > queues Arguments objects and disables the automatic page_view
+AssertionError: expected [ …(3) ] to deep equally contain [ 'config', 'G-JD6CV2CFYS', { …(1) } ]
+
+- Expected
++ Received
+
+  [
++   [
++     "js",
++     2026-11-03T19:49:45.569Z,
++   ],
++   [
+      "config",
+      "G-JD6CV2CFYS",
+      {
+-     "send_page_view": false,
++       "send_page_view": true,
++     },
++   ],
++   [
++     "event",
++     "page_view",
++     {
++       "page_location": "http://localhost:3000/",
++       "page_path": "/",
++       "page_title": "",
+      },
++   ],
+  ]
+
+ ❯ src/lib/analytics.test.ts:64:20
+     62|     const queued = (window.dataLayer ?? []).map((entry) => Array.proto…
+     63|     expect(queued.some((entry) => entry[0] === 'js')).toBe(true)
+     64|     expect(queued).toContainEqual(['config', GA_MEASUREMENT_ID, { send…
+       |                    ^
+     65|     expect(
+     66|       queued.some((entry) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  19:49:44
+   Duration  602ms (transform 68ms, setup 99ms, collect 55ms, tests 15ms, environment 296ms, prepare 44ms)
+

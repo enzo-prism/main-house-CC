@@ -1,7 +1,16 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 
 import { phones } from '@/content'
-import { FORM_ENDPOINT, INQUIRY_FORM_NAME, submitLeadForm } from '@/lib/lead-form'
+import {
+  FORM_ENDPOINT,
+  INQUIRY_FORM_NAME,
+  LEAD_FORM_ACCOMMODATION,
+  LEAD_FORM_ENV,
+  LEAD_FORM_RETURNING,
+  LEAD_FORM_SITE,
+  LEAD_FORM_SUBJECT,
+  submitLeadForm,
+} from '@/lib/lead-form'
 import { cn } from '@/lib/utils'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -11,7 +20,7 @@ export type InquiryFormProps = {
   formName?: string
 }
 
-type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
+type FormStatus = 'idle' | 'submitting' | 'success' | 'preview' | 'error'
 
 function isBlank(value: string) {
   return value.trim().length === 0
@@ -32,6 +41,7 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
   const [status, setStatus] = useState<FormStatus>('idle')
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<Set<string>>(new Set())
+  const inFlight = useRef(false)
 
   const validate = (form: HTMLFormElement) => {
     const name = String(new FormData(form).get('name') ?? '')
@@ -58,7 +68,7 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (status === 'submitting') return
+    if (inFlight.current) return
 
     const form = event.currentTarget
     const honeypot = String(new FormData(form).get('_gotcha') ?? '')
@@ -71,20 +81,18 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
 
     if (!validate(form)) return
 
+    inFlight.current = true
     setStatus('submitting')
     setError(null)
 
     const body = new FormData(form)
     body.delete('_gotcha')
-    body.set('_subject', 'Main House inquiry')
-    body.set('accommodation', 'main-house')
-    body.set('returning', 'yes')
 
     try {
       const result = await submitLeadForm({ endpoint, formName, body })
       if (result.ok) {
         form.reset()
-        setStatus('success')
+        setStatus(result.posted ? 'success' : 'preview')
         return
       }
       setStatus('error')
@@ -92,6 +100,8 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
     } catch {
       setStatus('error')
       setError('Something went wrong. Please try again or call us.')
+    } finally {
+      inFlight.current = false
     }
   }
 
@@ -103,6 +113,15 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
             <h3 className="text-title">Thanks — we have your note.</h3>
             <p className="text-body max-w-md">
               The Canary Cove team will reply within one business day about your Main House dates.
+            </p>
+          </div>
+        )
+      case 'preview':
+        return (
+          <div className="flow flow-md" data-testid="inquiry-success" data-preview="true" role="status">
+            <h3 className="text-title">Preview — nothing was sent.</h3>
+            <p className="text-body max-w-md">
+              This is a non-production host. The inquiry was not posted to Formspree and no message was delivered.
             </p>
           </div>
         )
@@ -118,6 +137,11 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
             data-testid="inquiry-form"
             className="flow flow-md"
           >
+            <input type="hidden" name="site" value={LEAD_FORM_SITE} />
+            <input type="hidden" name="env" value={LEAD_FORM_ENV} />
+            <input type="hidden" name="_subject" value={LEAD_FORM_SUBJECT} />
+            <input type="hidden" name="accommodation" value={LEAD_FORM_ACCOMMODATION} />
+            <input type="hidden" name="returning" value={LEAD_FORM_RETURNING} />
             <div className="sr-only" aria-hidden="true">
               <label htmlFor="inquiry-gotcha">Company website</label>
               <input id="inquiry-gotcha" name="_gotcha" type="text" tabIndex={-1} autoComplete="off" data-testid="inquiry-gotcha" />

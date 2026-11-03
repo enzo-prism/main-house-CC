@@ -22,6 +22,10 @@ const hostMaps = [
   'MAP *.doubleclick.net 127.0.0.1',
   'MAP googlesyndication.com 127.0.0.1',
   'MAP *.googlesyndication.com 127.0.0.1',
+  'MAP googleadservices.com 127.0.0.1',
+  'MAP *.googleadservices.com 127.0.0.1',
+  'MAP google.com 127.0.0.1',
+  'MAP *.google.com 127.0.0.1',
 ].join(', ')
 
 export default defineConfig({

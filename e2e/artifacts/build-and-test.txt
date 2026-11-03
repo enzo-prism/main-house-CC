@@ -1,25 +1,29 @@
 pnpm lint
-  eslint .  (exit 0)
+
+> canary-cove-main-house@0.0.0 lint /workspace
+> eslint .
+
 
 pnpm exec tsc -b
   (exit 0)
 
-pnpm build
-  vite v8.0.5 client + ssr
-  prerender: wrote 87.8 KB of markup into dist/index.html
-  prerendered form: method="POST" action="https://formspree.io/f/xvzarybk"
-
 pnpm test
-RUN  v3.2.7 /workspace
 
- ✓ src/lib/lead-form.test.ts (9 tests) 7ms
- ✓ src/lib/analytics.test.ts (10 tests) 15ms
- ✓ src/components/inquiry-form.test.tsx (6 tests) 548ms
+> canary-cove-main-house@0.0.0 test /workspace
+> vitest run
+
+
+ RUN  v3.2.7 /workspace
+
+ ✓ src/lib/lead-form.test.ts (10 tests) 7ms
+ ✓ src/lib/analytics.test.ts (13 tests) 24ms
+ ✓ src/components/inquiry-form.test.tsx (8 tests) 895ms
 
  Test Files  3 passed (3)
-      Tests  25 passed (25)
-   Start at  18:28:22
-   Duration  1.35s (transform 230ms, setup 428ms, collect 312ms, tests 570ms, environment 1.09s, prepare 191ms)
+      Tests  31 passed (31)
+   Start at  19:50:49
+   Duration  1.65s (transform 215ms, setup 417ms, collect 332ms, tests 926ms, environment 1.03s, prepare 174ms)
+
 
 pnpm test:e2e
 
@@ -30,32 +34,42 @@ pnpm test:e2e
 Running 11 tests using 2 workers
 
 
-  ✓   2 [chromium] › e2e/analytics.spec.ts:40:3 › GA4 on localhost › does not load the gtag script on localhost (463ms)
-  ✓   3 [chromium] › e2e/analytics.spec.ts:46:3 › GA4 on localhost › a path change fires one page_view and a hash change does not (293ms)
-  ✓   4 [chromium] › e2e/analytics.spec.ts:67:3 › GA4 on localhost › prerendered inquiry form is a POST to Formspree (285ms)
-  ✓   5 [chromium] › e2e/analytics.spec.ts:74:3 › GA4 on localhost › successful inquiry submit fires generate_lead once with form_name and no PII (412ms)
-  ✓   1 [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host (1.7s)
-  ✓   7 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost (259ms)
-  ✓   6 [chromium] › e2e/analytics.spec.ts:93:3 › GA4 on localhost › invalid or honeypot submits fire no generate_lead (512ms)
-  ✓   8 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app (222ms)
-  ✓   9 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com (196ms)
-  ✓  10 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test (186ms)
-  ✓  11 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com (189ms)
+  ✓   2 [chromium] › e2e/analytics.spec.ts:40:3 › GA4 on localhost › does not load the gtag script on localhost (351ms)
+  ✓   1 [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host (527ms)
+  ✓   3 [chromium] › e2e/analytics.spec.ts:46:3 › GA4 on localhost › a path change fires one page_view and a hash change does not (265ms)
+  ✓   4 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost (273ms)
+  ✓   5 [chromium] › e2e/analytics.spec.ts:67:3 › GA4 on localhost › prerendered inquiry form is a POST to Formspree (312ms)
+  ✓   6 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app (257ms)
+  ✓   8 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com (252ms)
+  ✓   7 [chromium] › e2e/analytics.spec.ts:76:3 › GA4 on localhost › successful inquiry submit fires generate_lead once with form_name and no PII (516ms)
+  ✓   9 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test (246ms)
+  ✓  11 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com (269ms)
+  ✓  10 [chromium] › e2e/analytics.spec.ts:96:3 › GA4 on localhost › invalid or honeypot submits fire no generate_lead (483ms)
 
-  11 passed (4.2s)
+  11 passed (3.6s)
 
-Fail-before / pass-after
-  1. Host gate removed (isProductionMainHouseHost always true):
-     e2e/hosts.spec.ts  5 failed  (gtag script count 1 on every non-prod host)
-     see e2e/artifacts/1-host-gate-e2e-fail.txt
-     includes()/endsWith() unit mutants: e2e/artifacts/1-host-gate-fail.txt
-     After restore: hosts.spec.ts 5 passed; collect.spec.ts served a local stub (no real Google).
-  2. page_location/page_path kept query+hash:
-     analytics.test.ts strip test failed (see e2e/artifacts/2-page-view-fail.txt)
-     After fix: page_location origin+pathname, page_path pathname only.
-  4. generate_lead on 400 + {ok:true}:
-     lead-form.test.ts failed (see e2e/artifacts/4-lead-fail.txt)
-     After fix: 400 + {ok:true} does not fire; only response.ok && body.ok === true.
+pnpm build
+  prerender: wrote 88.0 KB of markup into dist/index.html
+  form method="POST" action="https://formspree.io/f/xvzarybk"
+  hidden site=main_house env=prod _subject accommodation returning
 
-Google hosts are routed to a local gtag stub; /g/collect is answered with 204.
-gtag-collect-hits.json deleted. No mutantFireOnClick hook.
+Fail-before / pass-after (r3):
+  MF-A rest-array: dataLayer entries are [object Array]; collect.spec 0 hits
+    e2e/artifacts/r3/mf-a-rest-array.txt
+    e2e/artifacts/r3/mf-a-e2e-rest-array.txt
+  MF-B strip-all: utm/gclid dropped from page_location
+    e2e/artifacts/r3/mf-b-strip-all.txt
+  S2 stale status: sync double requestSubmit → 2 POSTs
+    e2e/artifacts/r3/s2-stale-status.txt
+  S3 lead in catch: fetch reject still fires generate_lead
+    e2e/artifacts/r3/s3-lead-in-catch.txt
+  S4 send_page_view:true: config assertion fails
+    e2e/artifacts/r3/s4-send-page-view-true.txt
+  S5 start-twice: 2 page_views
+    e2e/artifacts/r3/s5-start-twice.txt
+  S5 lead-before-response: gtag called before fetch resolves
+    e2e/artifacts/r3/s5-lead-before-response.txt
+  S5 M4-revert: 400+{ok:true} treated as success
+    e2e/artifacts/r3/s5-m4-revert.txt
+  After restore: lint 0, tsc 0, vitest 31, e2e 11. No real Google/Formspree.
+

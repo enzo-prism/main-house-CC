@@ -68,6 +68,32 @@ describe('submitLeadForm', () => {
     expect(body.get('env')).toBe('prod')
   })
 
+  it('does not fire generate_lead before the response arrives', async () => {
+    const gtag = mockGtag()
+    let release: ((value: { ok: boolean; status: number; json: () => Promise<{ ok: boolean }> }) => void) | undefined
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            release = resolve
+          }),
+      ),
+    )
+
+    const pending = submitLeadForm({
+      endpoint: 'https://example.test/forms',
+      formName: INQUIRY_FORM_NAME,
+      body: new FormData(),
+      hostname: PROD_HOST,
+    })
+
+    expect(gtag).not.toHaveBeenCalled()
+    release?.({ ok: true, status: 200, json: async () => ({ ok: true }) })
+    await pending
+    expect(gtag).toHaveBeenCalledTimes(1)
+  })
+
   it('does not fire generate_lead on a 400 with {ok:true}', async () => {
     const gtag = mockGtag()
     vi.stubGlobal(
@@ -127,5 +153,8 @@ describe('submitLeadForm', () => {
     const body = tagLeadFormBody(new FormData())
     expect(body.get('site')).toBe('main_house')
     expect(body.get('env')).toBe('prod')
+    expect(body.get('_subject')).toBe('Main House inquiry')
+    expect(body.get('accommodation')).toBe('main-house')
+    expect(body.get('returning')).toBe('yes')
   })
 })

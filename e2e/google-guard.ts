@@ -11,6 +11,8 @@ export const GOOGLE_HOST_SUFFIXES = [
   'analytics.google.com',
   'doubleclick.net',
   'googlesyndication.com',
+  'googleadservices.com',
+  'google.com',
 ] as const
 
 export const NON_PROD_HOSTS = [

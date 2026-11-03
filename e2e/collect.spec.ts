@@ -13,5 +13,5 @@ test('serves a local gtag stub and answers collect locally on the production hos
   expect(guard.collectHits.some((url) => url.includes('JD6CV2CFYS') && url.includes('en=page_view'))).toBe(true)
   expect(guard.collectHits.every((url) => url.includes('google-analytics.com'))).toBe(true)
   guard.assertNoGoogleLeak()
-  await page.screenshot({ path: 'e2e/artifacts/gtag-prod-hostname.png' })
+  await page.screenshot({ path: 'test-results/gtag-prod-hostname.png' })
 })

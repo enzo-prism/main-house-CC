@@ -1,0 +1,68 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/lead-form.test.ts (10 tests | 1 failed | 9 skipped) 7ms
+   ↓ lead response success > accepts only a 2xx response with ok:true
+   ↓ lead response success > rejects a 2xx response without ok:true
+   ↓ lead response success > rejects a 400 with {ok:true}
+   ↓ lead response success > rejects ok:false even on HTTP 200
+   ↓ submitLeadForm > fires generate_lead once after a 200 with ok:true on production
+   × submitLeadForm > does not fire generate_lead before the response arrives 6ms
+     → expected "spy" to not be called at all, but actually been called 1 times
+
+Received: 
+
+  1st spy call:
+
+    Array [
+      "event",
+      "generate_lead",
+      Object {
+        "form_name": "main_house_inquiry",
+      },
+    ]
+
+
+Number of calls: 1
+
+   ↓ submitLeadForm > does not fire generate_lead on a 400 with {ok:true}
+   ↓ submitLeadForm > fires nothing on a network error
+   ↓ submitLeadForm > does not POST on non-prod hosts and still records a local mocked success
+   ↓ submitLeadForm > tags production posts with site and env
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/lead-form.test.ts > submitLeadForm > does not fire generate_lead before the response arrives
+AssertionError: expected "spy" to not be called at all, but actually been called 1 times
+
+Received: 
+
+  1st spy call:
+
+    Array [
+      "event",
+      "generate_lead",
+      Object {
+        "form_name": "main_house_inquiry",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/lib/lead-form.test.ts:91:22
+     89|     })
+     90| 
+     91|     expect(gtag).not.toHaveBeenCalled()
+       |                      ^
+     92|     release?.({ ok: true, status: 200, json: async () => ({ ok: true }…
+     93|     await pending
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  19:50:05
+   Duration  606ms (transform 72ms, setup 105ms, collect 59ms, tests 7ms, environment 297ms, prepare 44ms)
+

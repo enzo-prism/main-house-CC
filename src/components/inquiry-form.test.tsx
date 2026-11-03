@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { InquiryForm } from '@/components/inquiry-form'
+import * as analytics from '@/lib/analytics'
 import { FORM_ENDPOINT, INQUIRY_FORM_NAME } from '@/lib/lead-form'
 
 const ENDPOINT = 'https://example.test/forms'
@@ -39,6 +40,7 @@ describe('InquiryForm generate_lead', () => {
   afterEach(() => {
     cleanup()
     vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   it('prerenders as a POST to the form endpoint', () => {
@@ -46,6 +48,11 @@ describe('InquiryForm generate_lead', () => {
     const form = screen.getByTestId('inquiry-form')
     expect(form).toHaveAttribute('method', 'POST')
     expect(form).toHaveAttribute('action', ENDPOINT)
+    expect(form.querySelector('input[name="site"]')).toHaveAttribute('value', 'main_house')
+    expect(form.querySelector('input[name="env"]')).toHaveAttribute('value', 'prod')
+    expect(form.querySelector('input[name="_subject"]')).toHaveAttribute('value', 'Main House inquiry')
+    expect(form.querySelector('input[name="accommodation"]')).toHaveAttribute('value', 'main-house')
+    expect(form.querySelector('input[name="returning"]')).toHaveAttribute('value', 'yes')
   })
 
   it('uses the production Formspree action by default', () => {
@@ -63,6 +70,7 @@ describe('InquiryForm generate_lead', () => {
     await user.click(screen.getByTestId('inquiry-submit'))
 
     expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
+    expect(screen.getByTestId('inquiry-success')).toHaveTextContent('nothing was sent')
     expect(fetchMock).not.toHaveBeenCalled()
     expect(gtag).toHaveBeenCalledTimes(1)
     expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
@@ -106,5 +114,51 @@ describe('InquiryForm generate_lead', () => {
     expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
     expect(gtag).not.toHaveBeenCalled()
+  })
+
+  it('does not fire generate_lead when fetch rejects', async () => {
+    const user = userEvent.setup()
+    const gtag = mockGtag()
+    vi.spyOn(analytics, 'isProductionMainHouseHost').mockReturnValue(true)
+    const fetchMock = vi.fn().mockRejectedValue(new Error('offline'))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<InquiryForm endpoint={ENDPOINT} />)
+    await fillValidInquiry(user)
+    await user.click(screen.getByTestId('inquiry-submit'))
+
+    expect(await screen.findByTestId('inquiry-error')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(gtag).not.toHaveBeenCalled()
+  })
+
+  it('sends only one POST when requestSubmit is called twice synchronously', async () => {
+    const gtag = mockGtag()
+    vi.spyOn(analytics, 'isProductionMainHouseHost').mockReturnValue(true)
+    let release: ((value: { ok: boolean; status: number; json: () => Promise<{ ok: boolean }> }) => void) | undefined
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<InquiryForm endpoint={ENDPOINT} />)
+    const user = userEvent.setup()
+    await fillValidInquiry(user)
+
+    const form = screen.getByTestId('inquiry-form') as HTMLFormElement
+    form.requestSubmit()
+    form.requestSubmit()
+
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(gtag).not.toHaveBeenCalled()
+    release?.({ ok: true, status: 200, json: async () => ({ ok: true }) })
+
+    expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
   })
 })

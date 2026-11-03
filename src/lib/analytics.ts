@@ -39,6 +39,20 @@ const PII_PARAM_KEYS = new Set([
 
 const PRODUCTION_HOST_SET = new Set<string>(PRODUCTION_HOSTS)
 
+export const ATTRIBUTION_QUERY_PARAMS = [
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'utm_id',
+  'gclid',
+  'gbraid',
+  'wbraid',
+] as const
+
+const ATTRIBUTION_QUERY_PARAM_SET = new Set<string>(ATTRIBUTION_QUERY_PARAMS)
+
 let lastPageViewRoute: string | null = null
 let historyPatched = false
 const originalHistory = {
@@ -74,11 +88,21 @@ export function getRouteKey(url: URL | Location = window.location) {
   return url.pathname
 }
 
+export function attributionSearch(url: URL) {
+  const kept = new URLSearchParams()
+  for (const [key, value] of url.searchParams.entries()) {
+    if (ATTRIBUTION_QUERY_PARAM_SET.has(key.toLowerCase())) kept.append(key, value)
+  }
+  const query = kept.toString()
+  return query ? `?${query}` : ''
+}
+
 export function buildPageViewParams(source: string | URL | Location = window.location, pageTitle = document.title) {
   const url = source instanceof URL || isLocation(source) ? new URL(source.href) : new URL(source, SITE_URL)
+  const query = attributionSearch(url)
   return {
-    page_location: `${url.origin}${url.pathname}`,
-    page_path: url.pathname,
+    page_location: `${url.origin}${url.pathname}${query}`,
+    page_path: `${url.pathname}${query}`,
     page_title: pageTitle,
   }
 }
@@ -151,8 +175,9 @@ function installGtagSnippet() {
 
   window.dataLayer = window.dataLayer ?? []
   if (typeof window.gtag !== 'function') {
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer?.push(args)
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params -- real gtag.js only processes Arguments objects
+      window.dataLayer?.push(arguments)
     } as GtagFn
   }
   window.gtag('js', new Date())

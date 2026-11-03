@@ -1,0 +1,43 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (13 tests | 1 failed | 12 skipped) 13ms
+   ↓ Google Analytics host gating > loads only on exact production Main House hostnames
+   ↓ Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept
+   ↓ Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept
+   ↓ Google Analytics host gating > defaults the measurement ID to the shared Canary Cove property
+   ↓ Google Analytics host gating > does not inject the gtag script on a preview hostname
+   × Google Analytics host gating > queues Arguments objects and disables the automatic page_view 12ms
+     → expected '[object Array]' to be '[object Arguments]' // Object.is equality
+   ↓ page_view > keeps attribution params and drops other query keys and the hash
+   ↓ page_view > drops PII query keys when no attribution params are present
+   ↓ page_view > fires exactly one page_view on the initial route and one more on a path change
+   ↓ page_view > does not send a second page_view when tracking is started twice
+   ↓ page_view > does not send a page_view for in-page hash changes
+   ↓ generate_lead params > keeps form_name and drops PII keys
+   ↓ generate_lead params > never forwards PII on generate_lead
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/analytics.test.ts > Google Analytics host gating > queues Arguments objects and disables the automatic page_view
+AssertionError: expected '[object Array]' to be '[object Arguments]' // Object.is equality
+
+Expected: "[object Arguments]"
+Received: "[object Array]"
+
+ ❯ src/lib/analytics.test.ts:59:53
+     57|     expect(window.dataLayer?.length).toBeGreaterThan(0)
+     58|     for (const entry of window.dataLayer ?? []) {
+     59|       expect(Object.prototype.toString.call(entry)).toBe('[object Argu…
+       |                                                     ^
+     60|     }
+     61| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  19:49:42
+   Duration  613ms (transform 68ms, setup 103ms, collect 53ms, tests 13ms, environment 300ms, prepare 42ms)
+

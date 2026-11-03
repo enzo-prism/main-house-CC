@@ -1,0 +1,39 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (13 tests | 1 failed | 12 skipped) 11ms
+   ↓ Google Analytics host gating > loads only on exact production Main House hostnames
+   ↓ Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept
+   ↓ Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept
+   ↓ Google Analytics host gating > defaults the measurement ID to the shared Canary Cove property
+   ↓ Google Analytics host gating > does not inject the gtag script on a preview hostname
+   ↓ Google Analytics host gating > queues Arguments objects and disables the automatic page_view
+   ↓ page_view > keeps attribution params and drops other query keys and the hash
+   ↓ page_view > drops PII query keys when no attribution params are present
+   ↓ page_view > fires exactly one page_view on the initial route and one more on a path change
+   × page_view > does not send a second page_view when tracking is started twice 10ms
+     → expected "spy" to be called 1 times, but got 2 times
+   ↓ page_view > does not send a page_view for in-page hash changes
+   ↓ generate_lead params > keeps form_name and drops PII keys
+   ↓ generate_lead params > never forwards PII on generate_lead
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/analytics.test.ts > page_view > does not send a second page_view when tracking is started twice
+AssertionError: expected "spy" to be called 1 times, but got 2 times
+ ❯ src/lib/analytics.test.ts:146:18
+    144|     const stopFirst = startPageViewTracking()
+    145|     const stopSecond = startPageViewTracking()
+    146|     expect(gtag).toHaveBeenCalledTimes(1)
+       |                  ^
+    147|     stopFirst()
+    148|     stopSecond()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  19:49:46
+   Duration  613ms (transform 70ms, setup 103ms, collect 55ms, tests 11ms, environment 300ms, prepare 46ms)
+

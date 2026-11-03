@@ -58,8 +58,8 @@ test.describe('GA4 on localhost', () => {
     expect(views[0]?.[2]).toMatchObject({ page_path: '/', page_title: expect.any(String) })
     expect(String((views[0]?.[2] as { page_location?: string }).page_location)).not.toMatch(/[?#]/)
     expect(views[1]?.[2]).toEqual({
-      page_location: `${new URL(page.url()).origin}/rates`,
-      page_path: '/rates',
+      page_location: `${new URL(page.url()).origin}/rates?utm_source=test`,
+      page_path: '/rates?utm_source=test',
       page_title: expect.any(String),
     })
   })
@@ -69,6 +69,8 @@ test.describe('GA4 on localhost', () => {
     const form = page.getByTestId('inquiry-form')
     await expect(form).toHaveAttribute('method', 'POST')
     await expect(form).toHaveAttribute('action', FORMSPREE_ACTION)
+    await expect(form.locator('input[name="site"]')).toHaveValue('main_house')
+    await expect(form.locator('input[name="env"]')).toHaveValue('prod')
   })
 
   test('successful inquiry submit fires generate_lead once with form_name and no PII', async ({ page }) => {
@@ -84,6 +86,7 @@ test.describe('GA4 on localhost', () => {
     await page.getByTestId('inquiry-submit').click()
 
     await expect(page.getByTestId('inquiry-success')).toBeVisible()
+    await expect(page.getByTestId('inquiry-success')).toContainText('nothing was sent')
     await expect.poll(async () => (await getEvents(page, 'generate_lead')).length).toBe(1)
     expect(await getEvents(page, 'generate_lead')).toEqual([['event', 'generate_lead', { form_name: INQUIRY_FORM_NAME }]])
     expect(JSON.stringify(await getEvents(page, 'generate_lead'))).not.toMatch(/Test Guest|test\.guest@example\.test|Synthetic/i)
