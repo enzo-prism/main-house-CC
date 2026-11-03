@@ -1,5 +1,5 @@
-SHA: cb26a9f9e1f0eb54e00d12e485f69ee01e6d5b7d
-pass-after of e2e/artifacts/r5/mf1-d03ca50-fail.txt
+SHA: f3c178c19289d815b1be6f37a7c2d1e5d2c44ac6
+pass-after of e2e/artifacts/r5/mf1-d03ca50-fail.txt (run on the r5 working tree, committed as this SHA)
 
 --- test output ---
 
