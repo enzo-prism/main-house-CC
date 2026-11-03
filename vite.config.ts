@@ -10,4 +10,7 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  preview: {
+    allowedHosts: ['mainhouse.canarycove.com', 'www.mainhouse.canarycove.com'],
+  },
 })

@@ -1,0 +1,14 @@
+{
+  "hostname": "mainhouse.canarycove.com",
+  "pageUrl": "http://mainhouse.canarycove.com:4173/",
+  "hits": [
+    {
+      "url": "https://www.googletagmanager.com/gtag/js?id=G-JD6CV2CFYS",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6au1h1v9247172632za200zd9247172632xf1&_p=1793726784445&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=336572360.1793726785&frm=0&ngs=1&pscdl=noapi&rcb=1&sr=1920x1080&ul=en-us&_s=1&tag_exp=115938466~115938469~118897920~118897930~120213116~120385422~120420416~120469145~120469153~121246026~121246034~123691370~123692835&dl=http%3A%2F%2Fmainhouse.canarycove.com%3A4173%2F&dp=%2F&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&sid=1793726784&sct=1&seg=0&en=page_view&_fv=1&_nsi=1&_ss=1&_ee=1&tfd=501",
+      "method": "POST"
+    }
+  ]
+}
