@@ -37,6 +37,8 @@ const PII_PARAM_KEYS = new Set([
   'fullName',
 ])
 
+const PRODUCTION_HOST_SET = new Set<string>(PRODUCTION_HOSTS)
+
 let lastPageViewRoute: string | null = null
 let historyPatched = false
 const originalHistory = {
@@ -44,13 +46,18 @@ const originalHistory = {
   replaceState: typeof history !== 'undefined' ? history.replaceState.bind(history) : null,
 }
 
-export function shouldLoadGoogleAnalytics(hostname = currentHostname()) {
-  return (PRODUCTION_HOSTS as readonly string[]).includes(hostname)
-}
-
 export function currentHostname() {
   if (typeof window === 'undefined') return ''
   return window.location.hostname
+}
+
+/** Exact production hosts only. `includes` / `endsWith` lookalikes must not pass. */
+export function isProductionMainHouseHost(hostname = currentHostname()) {
+  return PRODUCTION_HOST_SET.has(hostname)
+}
+
+export function shouldLoadGoogleAnalytics(hostname = currentHostname()) {
+  return isProductionMainHouseHost(hostname)
 }
 
 export function sanitizeAnalyticsParams(params: AnalyticsParams = {}): Record<string, AnalyticsPrimitive> {
@@ -64,14 +71,14 @@ export function sanitizeAnalyticsParams(params: AnalyticsParams = {}): Record<st
 }
 
 export function getRouteKey(url: URL | Location = window.location) {
-  return `${url.pathname}${url.search}${url.hash}`
+  return url.pathname
 }
 
 export function buildPageViewParams(source: string | URL | Location = window.location, pageTitle = document.title) {
   const url = source instanceof URL || isLocation(source) ? new URL(source.href) : new URL(source, SITE_URL)
   return {
-    page_location: url.href,
-    page_path: getRouteKey(url),
+    page_location: `${url.origin}${url.pathname}`,
+    page_path: url.pathname,
     page_title: pageTitle,
   }
 }
@@ -93,7 +100,8 @@ export function sendGoogleAnalyticsEvent(name: string, params?: AnalyticsParams)
 
 export function sendPageView(source: string | URL | Location = window.location, pageTitle = document.title) {
   if (typeof window === 'undefined') return
-  const route = getRouteKey(source instanceof URL || isLocation(source) ? source : new URL(source, window.location.origin))
+  const resolved = source instanceof URL || isLocation(source) ? source : new URL(source, window.location.origin)
+  const route = getRouteKey(resolved)
   if (route === lastPageViewRoute) return
   lastPageViewRoute = route
   sendGoogleAnalyticsEvent('page_view', buildPageViewParams(source, pageTitle))
@@ -126,7 +134,6 @@ export function startPageViewTracking() {
   sendPageView(window.location, document.title)
 
   window.addEventListener('popstate', notifyRouteChange)
-  window.addEventListener('hashchange', notifyRouteChange)
 
   if (!historyPatched) {
     bindHistoryMethod('pushState')
@@ -136,7 +143,6 @@ export function startPageViewTracking() {
 
   return () => {
     window.removeEventListener('popstate', notifyRouteChange)
-    window.removeEventListener('hashchange', notifyRouteChange)
   }
 }
 
@@ -145,9 +151,8 @@ function installGtagSnippet() {
 
   window.dataLayer = window.dataLayer ?? []
   if (typeof window.gtag !== 'function') {
-    window.gtag = function gtag() {
-      // Official snippet uses the Arguments object, not a rest array.
-      window.dataLayer?.push(arguments)
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer?.push(args)
     } as GtagFn
   }
   window.gtag('js', new Date())
@@ -168,8 +173,6 @@ export function loadGoogleAnalytics(hostname = currentHostname()) {
     installGtagSnippet()
   }
 
-  // Production loads the official snippet. Tests may inject window.gtag on
-  // localhost so page_view / generate_lead can be asserted without a collect hit.
   if (allowed || typeof window.gtag === 'function') {
     startPageViewTracking()
   }

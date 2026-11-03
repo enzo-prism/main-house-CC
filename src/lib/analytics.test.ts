@@ -20,16 +20,23 @@ function mockGtag() {
 }
 
 describe('Google Analytics host gating', () => {
-  it('loads only on production Main House hostnames', () => {
+  it('loads only on exact production Main House hostnames', () => {
     expect(shouldLoadGoogleAnalytics('mainhouse.canarycove.com')).toBe(true)
     expect(shouldLoadGoogleAnalytics('www.mainhouse.canarycove.com')).toBe(true)
   })
 
-  it('does not load on localhost, previews, or test hosts', () => {
+  it('rejects localhost, previews, and lookalikes that an includes() mutant would accept', () => {
     expect(shouldLoadGoogleAnalytics('localhost')).toBe(false)
     expect(shouldLoadGoogleAnalytics('127.0.0.1')).toBe(false)
     expect(shouldLoadGoogleAnalytics('canary-cove-main-house-git-main.vercel.app')).toBe(false)
-    expect(shouldLoadGoogleAnalytics('canary-cove-main-house-abc123.vercel.app')).toBe(false)
+    expect(shouldLoadGoogleAnalytics('staging.mainhouse.canarycove.com')).toBe(false)
+    expect(shouldLoadGoogleAnalytics('mainhouse.canarycove.com.evil.test')).toBe(false)
+  })
+
+  it('rejects prefix lookalikes that an endsWith() mutant would accept', () => {
+    expect(shouldLoadGoogleAnalytics('xmainhouse.canarycove.com')).toBe(false)
+    expect(shouldLoadGoogleAnalytics('notmainhouse.canarycove.com')).toBe(false)
+    expect(shouldLoadGoogleAnalytics('staging.mainhouse.canarycove.com')).toBe(false)
   })
 
   it('defaults the measurement ID to the shared Canary Cove property', () => {
@@ -45,8 +52,8 @@ describe('Google Analytics host gating', () => {
 
 describe('page_view', () => {
   beforeEach(() => {
-    resetPageViewTracking()
     window.history.replaceState(null, '', '/')
+    resetPageViewTracking()
     document.title = 'Canary Cove Main House'
   })
 
@@ -54,35 +61,51 @@ describe('page_view', () => {
     resetPageViewTracking()
   })
 
-  it('sends page_location, page_path, and page_title', () => {
-    expect(buildPageViewParams(new URL('https://mainhouse.canarycove.com/#book'), 'Rates')).toEqual({
-      page_location: 'https://mainhouse.canarycove.com/#book',
-      page_path: '/#book',
-      page_title: 'Rates',
+  it('strips the query string and hash from page_location and page_path', () => {
+    expect(
+      buildPageViewParams(
+        new URL('https://mainhouse.canarycove.com/book?utm_source=newsletter&guest=test#form'),
+        'Book',
+      ),
+    ).toEqual({
+      page_location: 'https://mainhouse.canarycove.com/book',
+      page_path: '/book',
+      page_title: 'Book',
     })
   })
 
-  it('fires exactly one page_view on the initial route and one more on a route change', () => {
+  it('fires exactly one page_view on the initial route and one more on a path change', () => {
     const gtag = mockGtag()
     const stop = startPageViewTracking()
 
     expect(gtag).toHaveBeenCalledTimes(1)
     expect(gtag).toHaveBeenCalledWith('event', 'page_view', {
-      page_location: window.location.href,
+      page_location: `${window.location.origin}/`,
       page_path: '/',
       page_title: 'Canary Cove Main House',
     })
 
-    window.history.pushState(null, '', '/#book')
+    window.history.pushState(null, '', '/rates')
     expect(gtag).toHaveBeenCalledTimes(2)
     expect(gtag).toHaveBeenLastCalledWith('event', 'page_view', {
-      page_location: window.location.href,
-      page_path: '/#book',
+      page_location: `${window.location.origin}/rates`,
+      page_path: '/rates',
       page_title: 'Canary Cove Main House',
     })
 
     sendPageView()
     expect(gtag).toHaveBeenCalledTimes(2)
+    stop()
+  })
+
+  it('does not send a page_view for in-page hash changes', () => {
+    const gtag = mockGtag()
+    const stop = startPageViewTracking()
+    expect(gtag).toHaveBeenCalledTimes(1)
+
+    window.history.pushState(null, '', '/#book')
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+    expect(gtag).toHaveBeenCalledTimes(1)
     stop()
   })
 })
@@ -92,10 +115,10 @@ describe('generate_lead params', () => {
     expect(
       sanitizeAnalyticsParams({
         form_name: 'main_house_inquiry',
-        name: 'Alex Martin',
-        email: 'alex@example.com',
-        phone: '+1 555 123 1234',
-        message: 'Planning a reunion',
+        name: 'Test Guest',
+        email: 'test.guest@example.test',
+        phone: '+1 555 0100',
+        message: 'Synthetic inquiry for a mocked form.',
       }),
     ).toEqual({ form_name: 'main_house_inquiry' })
   })
@@ -103,8 +126,8 @@ describe('generate_lead params', () => {
   it('never forwards PII on generate_lead', () => {
     const gtag = mockGtag()
     trackGenerateLead('main_house_inquiry', {
-      name: 'Alex Martin',
-      email: 'alex@example.com',
+      name: 'Test Guest',
+      email: 'test.guest@example.test',
       phone: '555',
       message: 'hello',
     })

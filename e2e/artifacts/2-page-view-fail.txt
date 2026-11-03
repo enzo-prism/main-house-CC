@@ -1,0 +1,48 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (10 tests | 1 failed | 9 skipped) 13ms
+   ↓ Google Analytics host gating > loads only on exact production Main House hostnames
+   ↓ Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept
+   ↓ Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept
+   ↓ Google Analytics host gating > defaults the measurement ID to the shared Canary Cove property
+   ↓ Google Analytics host gating > does not inject the gtag script on a preview hostname
+   × page_view > strips the query string and hash from page_location and page_path 12ms
+     → expected { …(3) } to deeply equal { …(3) }
+   ↓ page_view > fires exactly one page_view on the initial route and one more on a path change
+   ↓ page_view > does not send a page_view for in-page hash changes
+   ↓ generate_lead params > keeps form_name and drops PII keys
+   ↓ generate_lead params > never forwards PII on generate_lead
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/analytics.test.ts > page_view > strips the query string and hash from page_location and page_path
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "page_location": "https://mainhouse.canarycove.com/book",
+-   "page_path": "/book",
++   "page_location": "https://mainhouse.canarycove.com/book?utm_source=newsletter&guest=test#form",
++   "page_path": "/book?utm_source=newsletter&guest=test#form",
+    "page_title": "Book",
+  }
+
+ ❯ src/lib/analytics.test.ts:70:7
+     68|         'Book',
+     69|       ),
+     70|     ).toEqual({
+       |       ^
+     71|       page_location: 'https://mainhouse.canarycove.com/book',
+     72|       page_path: '/book',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  18:22:25
+   Duration  666ms (transform 74ms, setup 114ms, collect 69ms, tests 13ms, environment 316ms, prepare 48ms)
+

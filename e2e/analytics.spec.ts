@@ -1,5 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
+import { installGoogleGuard } from './google-guard'
+
+const FORMSPREE_ACTION = 'https://formspree.io/f/xvzarybk'
+
 const INQUIRY_FORM_NAME = 'main_house_inquiry'
 
 type GaWindow = Window & {
@@ -26,13 +30,11 @@ const getEvents = async (page: Page, name: string) =>
     return (win.__gaEvents ?? []).filter((entry) => entry[0] === 'event' && entry[1] === eventName)
   }, name)
 
-test.describe('GA4 on localhost / preview', () => {
+test.describe('GA4 on localhost', () => {
   test.beforeEach(async ({ page }) => {
+    await installGoogleGuard(page)
     await page.route('**/formspree.io/**', (route) => route.abort())
     await page.route('https://example.test/**', (route) => route.abort())
-    await page.route('**/googletagmanager.com/**', (route) => route.abort())
-    await page.route('**/google-analytics.com/**', (route) => route.abort())
-    await page.route('**/analytics.google.com/**', (route) => route.abort())
   })
 
   test('does not load the gtag script on localhost', async ({ page }) => {
@@ -41,52 +43,66 @@ test.describe('GA4 on localhost / preview', () => {
     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
   })
 
-  test('a route change fires one page_view after the initial load', async ({ page }) => {
+  test('a path change fires one page_view and a hash change does not', async ({ page }) => {
     await installAnalyticsRecorder(page)
     await page.goto('/')
     await expect.poll(async () => (await getEvents(page, 'page_view')).length).toBe(1)
 
     await page.evaluate(() => window.history.pushState(null, '', '/#book'))
+    await expect.poll(async () => (await getEvents(page, 'page_view')).length).toBe(1)
+
+    await page.evaluate(() => window.history.pushState(null, '', '/rates?utm_source=test#section'))
     await expect.poll(async () => (await getEvents(page, 'page_view')).length).toBe(2)
 
     const views = await getEvents(page, 'page_view')
-    expect(views[0]?.[2]).toMatchObject({ page_path: '/', page_title: expect.any(String), page_location: expect.any(String) })
-    expect(views[1]?.[2]).toMatchObject({ page_path: '/#book' })
+    expect(views[0]?.[2]).toMatchObject({ page_path: '/', page_title: expect.any(String) })
+    expect(String((views[0]?.[2] as { page_location?: string }).page_location)).not.toMatch(/[?#]/)
+    expect(views[1]?.[2]).toEqual({
+      page_location: `${new URL(page.url()).origin}/rates`,
+      page_path: '/rates',
+      page_title: expect.any(String),
+    })
+  })
+
+  test('prerendered inquiry form is a POST to Formspree', async ({ page }) => {
+    await page.goto('/#book')
+    const form = page.getByTestId('inquiry-form')
+    await expect(form).toHaveAttribute('method', 'POST')
+    await expect(form).toHaveAttribute('action', FORMSPREE_ACTION)
   })
 
   test('successful inquiry submit fires generate_lead once with form_name and no PII', async ({ page }) => {
-    await page.route('**/formspree.io/**', async (route) => {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true }) })
+    const posts: string[] = []
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().includes('formspree.io')) posts.push(request.url())
     })
     await installAnalyticsRecorder(page)
     await page.goto('/#book')
-    await page.getByLabel('Nature of inquiry').fill('Planning a June reunion for eight.')
-    await page.getByLabel('Name').fill('Alex Martin')
-    await page.getByLabel('Email').fill('alex@example.com')
+    await page.getByLabel('Nature of inquiry').fill('Synthetic inquiry for a mocked form.')
+    await page.getByLabel('Name').fill('Test Guest')
+    await page.getByLabel('Email').fill('test.guest@example.test')
     await page.getByTestId('inquiry-submit').click()
 
     await expect(page.getByTestId('inquiry-success')).toBeVisible()
     await expect.poll(async () => (await getEvents(page, 'generate_lead')).length).toBe(1)
-    const events = await getEvents(page, 'generate_lead')
-    expect(events).toEqual([['event', 'generate_lead', { form_name: INQUIRY_FORM_NAME }]])
-    expect(JSON.stringify(events)).not.toMatch(/Alex|alex@example\.com|reunion/i)
+    expect(await getEvents(page, 'generate_lead')).toEqual([['event', 'generate_lead', { form_name: INQUIRY_FORM_NAME }]])
+    expect(JSON.stringify(await getEvents(page, 'generate_lead'))).not.toMatch(/Test Guest|test\.guest@example\.test|Synthetic/i)
+    expect(posts).toEqual([])
   })
 
-  test('invalid or failed submits fire no generate_lead', async ({ page }) => {
+  test('invalid or honeypot submits fire no generate_lead', async ({ page }) => {
     await installAnalyticsRecorder(page)
     await page.goto('/#book')
     await page.getByTestId('inquiry-submit').click()
     await expect(page.getByTestId('inquiry-error')).toBeVisible()
     expect(await getEvents(page, 'generate_lead')).toEqual([])
 
-    await page.route('**/formspree.io/**', async (route) => {
-      await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ ok: false }) })
-    })
-    await page.getByLabel('Nature of inquiry').fill('Trying the error path.')
-    await page.getByLabel('Name').fill('Alex Martin')
-    await page.getByLabel('Email').fill('alex@example.com')
+    await page.getByLabel('Nature of inquiry').fill('Synthetic inquiry for a mocked form.')
+    await page.getByLabel('Name').fill('Test Guest')
+    await page.getByLabel('Email').fill('test.guest@example.test')
+    await page.locator('[name="_gotcha"]').fill('https://spam.example.test')
     await page.getByTestId('inquiry-submit').click()
-    await expect(page.getByTestId('inquiry-error')).toBeVisible()
+    await expect(page.getByTestId('inquiry-success')).toBeVisible()
     expect(await getEvents(page, 'generate_lead')).toEqual([])
   })
 })

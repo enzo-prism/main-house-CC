@@ -1,4 +1,4 @@
-import { trackGenerateLead } from '@/lib/analytics'
+import { isProductionMainHouseHost, trackGenerateLead } from '@/lib/analytics'
 
 export const INQUIRY_FORM_NAME = 'main_house_inquiry'
 
@@ -7,19 +7,37 @@ export const FORM_ENDPOINT = import.meta.env.VITE_FORM_ENDPOINT ?? 'https://form
 export type LeadSubmitResult = {
   ok: boolean
   status: number
+  posted: boolean
 }
 
 export function isSuccessfulLeadResponse(response: Pick<Response, 'ok' | 'status'>, body: unknown) {
-  const flagged = body && typeof body === 'object' && 'ok' in body ? Boolean((body as { ok: unknown }).ok) : undefined
-  if (flagged === false) return false
-  return response.ok || flagged === true
+  if (!response.ok) return false
+  return Boolean(body && typeof body === 'object' && (body as { ok?: unknown }).ok === true)
+}
+
+export function shouldPostLeadForm(hostname?: string) {
+  return isProductionMainHouseHost(hostname)
+}
+
+export function tagLeadFormBody(body: FormData) {
+  body.set('site', 'main_house')
+  body.set('env', 'prod')
+  return body
 }
 
 export async function submitLeadForm(options: {
   endpoint: string
   formName: string
   body: FormData
+  hostname?: string
 }): Promise<LeadSubmitResult> {
+  if (!shouldPostLeadForm(options.hostname)) {
+    trackGenerateLead(options.formName)
+    return { ok: true, status: 200, posted: false }
+  }
+
+  tagLeadFormBody(options.body)
+
   const response = await fetch(options.endpoint, {
     method: 'POST',
     body: options.body,
@@ -38,5 +56,5 @@ export async function submitLeadForm(options: {
     trackGenerateLead(options.formName)
   }
 
-  return { ok, status: response.status }
+  return { ok, status: response.status, posted: true }
 }

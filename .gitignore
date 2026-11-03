@@ -28,3 +28,4 @@ blob-report
 *.sw?
 .vercel
 .env*
+e2e/certs/*.pem

@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
 import { phones } from '@/content'
-import { trackGenerateLead } from '@/lib/analytics'
 import { FORM_ENDPOINT, INQUIRY_FORM_NAME, submitLeadForm } from '@/lib/lead-form'
 import { cn } from '@/lib/utils'
 
@@ -10,8 +9,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export type InquiryFormProps = {
   endpoint?: string
   formName?: string
-  /** Test-only mutant: fire generate_lead on the submit control click. */
-  mutantFireOnClick?: boolean
 }
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
@@ -28,14 +25,10 @@ const fieldClass =
   'focus-ring w-full rounded-2xl border border-ink/15 bg-sand-light px-4 py-3 text-[15px] text-ink placeholder:text-muted-foreground'
 
 /**
- * Main House availability inquiry. Posts to Formspree (or VITE_FORM_ENDPOINT)
- * and emits generate_lead only after a successful response.
+ * Main House availability inquiry. Posts to Formspree on production hosts only
+ * and emits generate_lead only after a 2xx response with ok:true.
  */
-export function InquiryForm({
-  endpoint = FORM_ENDPOINT,
-  formName = INQUIRY_FORM_NAME,
-  mutantFireOnClick = false,
-}: InquiryFormProps) {
+export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_NAME }: InquiryFormProps) {
   const [status, setStatus] = useState<FormStatus>('idle')
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<Set<string>>(new Set())
@@ -68,12 +61,21 @@ export function InquiryForm({
     if (status === 'submitting') return
 
     const form = event.currentTarget
+    const honeypot = String(new FormData(form).get('_gotcha') ?? '')
+    if (!isBlank(honeypot)) {
+      form.reset()
+      setStatus('success')
+      setError(null)
+      return
+    }
+
     if (!validate(form)) return
 
     setStatus('submitting')
     setError(null)
 
     const body = new FormData(form)
+    body.delete('_gotcha')
     body.set('_subject', 'Main House inquiry')
     body.set('accommodation', 'main-house')
     body.set('returning', 'yes')
@@ -109,11 +111,17 @@ export function InquiryForm({
       case 'error':
         return (
           <form
+            method="POST"
+            action={endpoint}
             onSubmit={handleSubmit}
             noValidate
             data-testid="inquiry-form"
             className="flow flow-md"
           >
+            <div className="sr-only" aria-hidden="true">
+              <label htmlFor="inquiry-gotcha">Company website</label>
+              <input id="inquiry-gotcha" name="_gotcha" type="text" tabIndex={-1} autoComplete="off" data-testid="inquiry-gotcha" />
+            </div>
             <div className="flow flow-xs">
               <label htmlFor="inquiry-nature" className="text-[13px] font-medium text-foreground">
                 Nature of inquiry
@@ -143,7 +151,7 @@ export function InquiryForm({
                   name="name"
                   autoComplete="name"
                   required
-                  placeholder="Alex Martin"
+                  placeholder="Test Guest"
                   aria-invalid={invalid.has('name') || undefined}
                   className={fieldClass}
                 />
@@ -159,7 +167,7 @@ export function InquiryForm({
                   autoComplete="email"
                   inputMode="email"
                   required
-                  placeholder="alex@example.com"
+                  placeholder="test.guest@example.test"
                   aria-invalid={invalid.has('email') || undefined}
                   className={fieldClass}
                 />
@@ -179,7 +187,6 @@ export function InquiryForm({
               type="submit"
               data-testid="inquiry-submit"
               disabled={status === 'submitting'}
-              onClick={mutantFireOnClick ? () => trackGenerateLead(formName) : undefined}
               className={cn(
                 'focus-ring inline-flex h-12 items-center justify-center rounded-full bg-ink px-6 text-sm font-medium text-sand-light transition-colors hover:bg-lagoon disabled:opacity-60',
               )}
