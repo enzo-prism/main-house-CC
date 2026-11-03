@@ -30,6 +30,7 @@ const hostMaps = [
 
 export default defineConfig({
   testDir: './e2e',
+  testMatch: '**/*.spec.ts',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

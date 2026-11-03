@@ -1,0 +1,29 @@
+SHA: d1ced1d9cd6cf42a655e389ac5595ef4f0a82899
+mutant: s6-guard-drops-google.com — remove google.com from GOOGLE_HOST_SUFFIXES
+
+--- patch ---
+--- a/e2e/google-hosts.ts
++++ b/e2e/google-hosts.ts
+@@
+-  'googleadservices.com',
+-  'google.com',
+-] as const
++  'googleadservices.com',
++] as const
+
+--- test output ---
+
+ RUN  v3.2.7 /workspace
+
+ ❯ e2e/google-hosts.test.ts (2 tests | 1 failed) 6ms
+   × isGoogleHost > blocks google.com, www.google.com, and Ads conversion hosts 5ms
+     → expected false to be true // Object.is equality
+   ✓ isGoogleHost > does not treat Main House or lookalikes as Google 0ms
+
+ FAIL  e2e/google-hosts.test.ts > isGoogleHost > blocks google.com, www.google.com, and Ads conversion hosts
+AssertionError: expected false to be true // Object.is equality
+ ❯ e2e/google-hosts.test.ts:7:40
+      7|     expect(isGoogleHost('google.com')).toBe(true)
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)

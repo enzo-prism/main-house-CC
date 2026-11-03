@@ -15,14 +15,15 @@ pnpm test
 
  RUN  v3.2.7 /workspace
 
- ✓ src/lib/lead-form.test.ts (10 tests) 7ms
- ✓ src/lib/analytics.test.ts (13 tests) 24ms
- ✓ src/components/inquiry-form.test.tsx (8 tests) 895ms
+ ✓ e2e/google-hosts.test.ts (2 tests) 2ms
+ ✓ src/lib/analytics.test.ts (15 tests) 28ms
+ ✓ src/lib/lead-form.test.ts (10 tests) 11ms
+ ✓ src/components/inquiry-form.test.tsx (9 tests) 1062ms
 
- Test Files  3 passed (3)
-      Tests  31 passed (31)
-   Start at  19:50:49
-   Duration  1.65s (transform 215ms, setup 417ms, collect 332ms, tests 926ms, environment 1.03s, prepare 174ms)
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  20:58:37
+   Duration  1.90s
 
 
 pnpm test:e2e
@@ -31,45 +32,37 @@ pnpm test:e2e
 > playwright test
 
 
-Running 11 tests using 2 workers
+Running 12 tests using 2 workers
 
+  ✓  [chromium] › e2e/collect.spec.ts › serves a local gtag stub and answers collect locally on the production host
+  ✓  [chromium] › e2e/analytics.spec.ts › does not load the gtag script on localhost
+  ✓  [chromium] › e2e/analytics.spec.ts › a path change fires one page_view and a hash change does not
+  ✓  [chromium] › e2e/analytics.spec.ts › prerendered inquiry form is a POST to Formspree
+  ✓  [chromium] › e2e/analytics.spec.ts › successful inquiry submit fires generate_lead once with form_name and no PII
+  ✓  [chromium] › e2e/analytics.spec.ts › invalid or honeypot submits fire no generate_lead
+  ✓  [chromium] › e2e/hosts.spec.ts › sends nothing on localhost
+  ✓  [chromium] › e2e/hosts.spec.ts › sends nothing on canary-cove-main-house-git-main.vercel.app
+  ✓  [chromium] › e2e/hosts.spec.ts › sends nothing on staging.mainhouse.canarycove.com
+  ✓  [chromium] › e2e/hosts.spec.ts › sends nothing on mainhouse.canarycove.com.evil.test
+  ✓  [chromium] › e2e/hosts.spec.ts › sends nothing on xmainhouse.canarycove.com
+  ✓  [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of page_view, form_start, and generate_lead (470ms)
 
-  ✓   2 [chromium] › e2e/analytics.spec.ts:40:3 › GA4 on localhost › does not load the gtag script on localhost (351ms)
-  ✓   1 [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host (527ms)
-  ✓   3 [chromium] › e2e/analytics.spec.ts:46:3 › GA4 on localhost › a path change fires one page_view and a hash change does not (265ms)
-  ✓   4 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost (273ms)
-  ✓   5 [chromium] › e2e/analytics.spec.ts:67:3 › GA4 on localhost › prerendered inquiry form is a POST to Formspree (312ms)
-  ✓   6 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app (257ms)
-  ✓   8 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com (252ms)
-  ✓   7 [chromium] › e2e/analytics.spec.ts:76:3 › GA4 on localhost › successful inquiry submit fires generate_lead once with form_name and no PII (516ms)
-  ✓   9 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test (246ms)
-  ✓  11 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com (269ms)
-  ✓  10 [chromium] › e2e/analytics.spec.ts:96:3 › GA4 on localhost › invalid or honeypot submits fire no generate_lead (483ms)
-
-  11 passed (3.6s)
+  12 passed (3.9s)
 
 pnpm build
   prerender: wrote 88.0 KB of markup into dist/index.html
   form method="POST" action="https://formspree.io/f/xvzarybk"
-  hidden site=main_house env=prod _subject accommodation returning
+  hidden site=main_house env=preview _subject accommodation returning
 
-Fail-before / pass-after (r3):
-  MF-A rest-array: dataLayer entries are [object Array]; collect.spec 0 hits
-    e2e/artifacts/r3/mf-a-rest-array.txt
-    e2e/artifacts/r3/mf-a-e2e-rest-array.txt
-  MF-B strip-all: utm/gclid dropped from page_location
-    e2e/artifacts/r3/mf-b-strip-all.txt
-  S2 stale status: sync double requestSubmit → 2 POSTs
-    e2e/artifacts/r3/s2-stale-status.txt
-  S3 lead in catch: fetch reject still fires generate_lead
-    e2e/artifacts/r3/s3-lead-in-catch.txt
-  S4 send_page_view:true: config assertion fails
-    e2e/artifacts/r3/s4-send-page-view-true.txt
-  S5 start-twice: 2 page_views
-    e2e/artifacts/r3/s5-start-twice.txt
-  S5 lead-before-response: gtag called before fetch resolves
-    e2e/artifacts/r3/s5-lead-before-response.txt
-  S5 M4-revert: 400+{ok:true} treated as success
-    e2e/artifacts/r3/s5-m4-revert.txt
-  After restore: lint 0, tsc 0, vitest 31, e2e 11. No real Google/Formspree.
-
+Fail-before / pass-after (r4), SHA-stamped with mutant patches:
+  MF-1 no gtag set at d1ced1d: form_start + generate_lead dl leak name/phone
+    e2e/artifacts/r4/mf1-d1ced1d-fail.txt
+    pass-after: pinned-gtag.spec.ts 1 page_view + 1 generate_lead, no query PII, utm kept
+  SF-2 inFlight never reset: retry after fetch reject stays stuck
+    e2e/artifacts/r4/sf2-inflight-never-reset.txt
+  SF-4 fallback array: dataLayer entry is [object Array]
+    e2e/artifacts/r4/sf4-fallback-array.txt
+  SF-5 drop google.com: isGoogleHost('google.com') is false
+    e2e/artifacts/r4/sf5-drop-google-com.txt
+  After restore: lint 0, tsc 0, vitest 36, e2e 12. No real Google/Formspree.
+  Fixtures fake only (Test Guest / test.guest@example.test / 5550100).

@@ -5,7 +5,6 @@ export const INQUIRY_FORM_NAME = 'main_house_inquiry'
 export const FORM_ENDPOINT = import.meta.env.VITE_FORM_ENDPOINT ?? 'https://formspree.io/f/xvzarybk'
 
 export const LEAD_FORM_SITE = 'main_house'
-export const LEAD_FORM_ENV = 'prod'
 export const LEAD_FORM_SUBJECT = 'Main House inquiry'
 export const LEAD_FORM_ACCOMMODATION = 'main-house'
 export const LEAD_FORM_RETURNING = 'yes'
@@ -25,9 +24,13 @@ export function shouldPostLeadForm(hostname?: string) {
   return isProductionMainHouseHost(hostname)
 }
 
-export function tagLeadFormBody(body: FormData) {
+export function leadFormEnv(hostname?: string) {
+  return isProductionMainHouseHost(hostname) ? 'prod' : 'preview'
+}
+
+export function tagLeadFormBody(body: FormData, hostname?: string) {
   body.set('site', LEAD_FORM_SITE)
-  body.set('env', LEAD_FORM_ENV)
+  body.set('env', leadFormEnv(hostname))
   body.set('_subject', LEAD_FORM_SUBJECT)
   body.set('accommodation', LEAD_FORM_ACCOMMODATION)
   body.set('returning', LEAD_FORM_RETURNING)
@@ -45,7 +48,7 @@ export async function submitLeadForm(options: {
     return { ok: true, status: 200, posted: false }
   }
 
-  tagLeadFormBody(options.body)
+  tagLeadFormBody(options.body, options.hostname)
 
   const response = await fetch(options.endpoint, {
     method: 'POST',

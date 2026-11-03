@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { INQUIRY_FORM_NAME, isSuccessfulLeadResponse, submitLeadForm, tagLeadFormBody } from '@/lib/lead-form'
+import { INQUIRY_FORM_NAME, isSuccessfulLeadResponse, leadFormEnv, submitLeadForm, tagLeadFormBody } from '@/lib/lead-form'
 
 const PROD_HOST = 'mainhouse.canarycove.com'
 
@@ -62,8 +62,7 @@ describe('submitLeadForm', () => {
 
     expect(result).toEqual({ ok: true, status: 200, posted: true })
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
     expect(body.get('site')).toBe('main_house')
     expect(body.get('env')).toBe('prod')
   })
@@ -91,7 +90,7 @@ describe('submitLeadForm', () => {
     expect(gtag).not.toHaveBeenCalled()
     release?.({ ok: true, status: 200, json: async () => ({ ok: true }) })
     await pending
-    expect(gtag).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
   })
 
   it('does not fire generate_lead on a 400 with {ok:true}', async () => {
@@ -146,15 +145,18 @@ describe('submitLeadForm', () => {
 
     expect(result).toEqual({ ok: true, status: 200, posted: false })
     expect(fetchMock).not.toHaveBeenCalled()
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
   })
 
-  it('tags production posts with site and env', () => {
-    const body = tagLeadFormBody(new FormData())
-    expect(body.get('site')).toBe('main_house')
-    expect(body.get('env')).toBe('prod')
-    expect(body.get('_subject')).toBe('Main House inquiry')
-    expect(body.get('accommodation')).toBe('main-house')
-    expect(body.get('returning')).toBe('yes')
+  it('tags production posts with site and env derived from the host', () => {
+    expect(leadFormEnv(PROD_HOST)).toBe('prod')
+    expect(leadFormEnv('localhost')).toBe('preview')
+    const prod = tagLeadFormBody(new FormData(), PROD_HOST)
+    expect(prod.get('site')).toBe('main_house')
+    expect(prod.get('env')).toBe('prod')
+    expect(prod.get('_subject')).toBe('Main House inquiry')
+    expect(prod.get('accommodation')).toBe('main-house')
+    expect(prod.get('returning')).toBe('yes')
+    expect(tagLeadFormBody(new FormData(), 'canary-cove-main-house-git-main.vercel.app').get('env')).toBe('preview')
   })
 })

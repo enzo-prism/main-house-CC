@@ -1,14 +1,14 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { phones } from '@/content'
 import {
   FORM_ENDPOINT,
   INQUIRY_FORM_NAME,
   LEAD_FORM_ACCOMMODATION,
-  LEAD_FORM_ENV,
   LEAD_FORM_RETURNING,
   LEAD_FORM_SITE,
   LEAD_FORM_SUBJECT,
+  leadFormEnv,
   submitLeadForm,
 } from '@/lib/lead-form'
 import { cn } from '@/lib/utils'
@@ -41,7 +41,12 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
   const [status, setStatus] = useState<FormStatus>('idle')
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<Set<string>>(new Set())
+  const [env, setEnv] = useState('preview')
   const inFlight = useRef(false)
+
+  useEffect(() => {
+    setEnv(leadFormEnv())
+  }, [])
 
   const validate = (form: HTMLFormElement) => {
     const name = String(new FormData(form).get('name') ?? '')
@@ -138,7 +143,7 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
             className="flow flow-md"
           >
             <input type="hidden" name="site" value={LEAD_FORM_SITE} />
-            <input type="hidden" name="env" value={LEAD_FORM_ENV} />
+            <input type="hidden" name="env" value={env} />
             <input type="hidden" name="_subject" value={LEAD_FORM_SUBJECT} />
             <input type="hidden" name="accommodation" value={LEAD_FORM_ACCOMMODATION} />
             <input type="hidden" name="returning" value={LEAD_FORM_RETURNING} />

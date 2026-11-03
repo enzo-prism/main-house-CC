@@ -10,6 +10,7 @@ export type AnalyticsParams = Record<string, AnalyticsPrimitive | null | undefin
 type GtagFn = {
   (command: 'js', date: Date): void
   (command: 'config', target: string, params?: { send_page_view?: boolean }): void
+  (command: 'set', params: { page_location?: string; page_path?: string; page_title?: string }): void
   (command: 'event', name: string, params?: AnalyticsParams): void
 }
 
@@ -111,15 +112,30 @@ function isLocation(value: string | URL | Location): value is Location {
   return typeof value !== 'string' && !(value instanceof URL)
 }
 
+function installArgumentsGtag() {
+  window.dataLayer = window.dataLayer ?? []
+  if (typeof window.gtag === 'function') return
+  window.gtag = function gtag() {
+    // eslint-disable-next-line prefer-rest-params -- real gtag.js only processes Arguments objects
+    window.dataLayer?.push(arguments)
+  } as GtagFn
+}
+
+export function setSanitizedPageLocation(source: string | URL | Location = window.location, pageTitle = document.title) {
+  const params = buildPageViewParams(source, pageTitle)
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    window.gtag('set', { page_location: params.page_location })
+  }
+  return params
+}
+
 export function sendGoogleAnalyticsEvent(name: string, params?: AnalyticsParams) {
   if (typeof window === 'undefined') return
   const payload = sanitizeAnalyticsParams(params)
-  if (typeof window.gtag === 'function') {
-    window.gtag('event', name, payload)
-    return
+  if (typeof window.gtag !== 'function') {
+    installArgumentsGtag()
   }
-  window.dataLayer = window.dataLayer ?? []
-  window.dataLayer.push(['event', name, payload])
+  window.gtag?.('event', name, payload)
 }
 
 export function sendPageView(source: string | URL | Location = window.location, pageTitle = document.title) {
@@ -128,11 +144,14 @@ export function sendPageView(source: string | URL | Location = window.location, 
   const route = getRouteKey(resolved)
   if (route === lastPageViewRoute) return
   lastPageViewRoute = route
-  sendGoogleAnalyticsEvent('page_view', buildPageViewParams(source, pageTitle))
+  const params = setSanitizedPageLocation(source, pageTitle)
+  sendGoogleAnalyticsEvent('page_view', params)
 }
 
 export function trackGenerateLead(formName: string, extra?: AnalyticsParams) {
-  sendGoogleAnalyticsEvent('generate_lead', { form_name: formName, ...extra })
+  const pageLocation = buildPageViewParams().page_location
+  setSanitizedPageLocation()
+  sendGoogleAnalyticsEvent('generate_lead', { form_name: formName, page_location: pageLocation, ...extra })
 }
 
 export function resetPageViewTracking() {
@@ -173,15 +192,9 @@ export function startPageViewTracking() {
 function installGtagSnippet() {
   if (document.querySelector('script[data-ga4="gtag"]')) return
 
-  window.dataLayer = window.dataLayer ?? []
-  if (typeof window.gtag !== 'function') {
-    window.gtag = function gtag() {
-      // eslint-disable-next-line prefer-rest-params -- real gtag.js only processes Arguments objects
-      window.dataLayer?.push(arguments)
-    } as GtagFn
-  }
-  window.gtag('js', new Date())
-  window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false })
+  installArgumentsGtag()
+  window.gtag?.('js', new Date())
+  window.gtag?.('config', GA_MEASUREMENT_ID, { send_page_view: false })
 
   const script = document.createElement('script')
   script.async = true

@@ -3,17 +3,12 @@ import { fileURLToPath } from 'node:url'
 
 import { expect, type Page } from '@playwright/test'
 
-const STUB = readFileSync(fileURLToPath(new URL('./stubs/gtag.js', import.meta.url)), 'utf8')
+import { isGoogleHost } from './google-hosts'
 
-export const GOOGLE_HOST_SUFFIXES = [
-  'googletagmanager.com',
-  'google-analytics.com',
-  'analytics.google.com',
-  'doubleclick.net',
-  'googlesyndication.com',
-  'googleadservices.com',
-  'google.com',
-] as const
+export { GOOGLE_HOST_SUFFIXES, isGoogleHost } from './google-hosts'
+
+const STUB = readFileSync(fileURLToPath(new URL('./stubs/gtag.js', import.meta.url)), 'utf8')
+const PINNED = readFileSync(fileURLToPath(new URL('./stubs/gtag.pinned.js', import.meta.url)), 'utf8')
 
 export const NON_PROD_HOSTS = [
   'localhost',
@@ -23,26 +18,26 @@ export const NON_PROD_HOSTS = [
   'xmainhouse.canarycove.com',
 ] as const
 
-export function isGoogleHost(hostname: string) {
-  const host = hostname.toLowerCase()
-  return GOOGLE_HOST_SUFFIXES.some((suffix) => host === suffix || host.endsWith(`.${suffix}`))
-}
-
 export type GoogleGuard = {
   collectHits: string[]
+  googlePayloads: string[]
   seenGoogle: string[]
   fulfilledGoogle: string[]
   assertNoGoogleLeak: () => void
 }
 
-export async function installGoogleGuard(page: Page): Promise<GoogleGuard> {
+export async function installGoogleGuard(page: Page, options?: { gtag?: 'stub' | 'pinned' }): Promise<GoogleGuard> {
   const collectHits: string[] = []
+  const googlePayloads: string[] = []
   const seenGoogle: string[] = []
   const fulfilledGoogle: string[] = []
+  const gtagBody = options?.gtag === 'pinned' ? PINNED : STUB
 
   page.on('request', (request) => {
     const url = new URL(request.url())
-    if (isGoogleHost(url.hostname)) seenGoogle.push(url.href)
+    if (!isGoogleHost(url.hostname)) return
+    seenGoogle.push(url.href)
+    googlePayloads.push([request.url(), request.postData() ?? ''].join('\n'))
   })
 
   await page.route('**/*', async (route) => {
@@ -55,11 +50,11 @@ export async function installGoogleGuard(page: Page): Promise<GoogleGuard> {
     fulfilledGoogle.push(url.href)
 
     if (url.pathname.includes('/gtag/js')) {
-      await route.fulfill({ status: 200, contentType: 'application/javascript; charset=utf-8', body: STUB })
+      await route.fulfill({ status: 200, contentType: 'application/javascript; charset=utf-8', body: gtagBody })
       return
     }
 
-    if (url.pathname.includes('/g/collect') || url.pathname.endsWith('/collect')) {
+    if (url.pathname.includes('/g/collect') || url.pathname.endsWith('/collect') || url.pathname.includes('/ccm/')) {
       collectHits.push(url.href)
       await route.fulfill({ status: 204, body: '' })
       return
@@ -70,6 +65,7 @@ export async function installGoogleGuard(page: Page): Promise<GoogleGuard> {
 
   return {
     collectHits,
+    googlePayloads,
     seenGoogle,
     fulfilledGoogle,
     assertNoGoogleLeak() {

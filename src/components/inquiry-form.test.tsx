@@ -49,7 +49,7 @@ describe('InquiryForm generate_lead', () => {
     expect(form).toHaveAttribute('method', 'POST')
     expect(form).toHaveAttribute('action', ENDPOINT)
     expect(form.querySelector('input[name="site"]')).toHaveAttribute('value', 'main_house')
-    expect(form.querySelector('input[name="env"]')).toHaveAttribute('value', 'prod')
+    expect(form.querySelector('input[name="env"]')).toHaveAttribute('value', 'preview')
     expect(form.querySelector('input[name="_subject"]')).toHaveAttribute('value', 'Main House inquiry')
     expect(form.querySelector('input[name="accommodation"]')).toHaveAttribute('value', 'main-house')
     expect(form.querySelector('input[name="returning"]')).toHaveAttribute('value', 'yes')
@@ -72,9 +72,8 @@ describe('InquiryForm generate_lead', () => {
     expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
     expect(screen.getByTestId('inquiry-success')).toHaveTextContent('nothing was sent')
     expect(fetchMock).not.toHaveBeenCalled()
-    expect(gtag).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
-    const params = gtag.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
+    const params = gtag.mock.calls.find((call) => call[0] === 'event')?.[2] as Record<string, unknown>
     expect(JSON.stringify(params)).not.toMatch(/Test Guest|test\.guest@example\.test|Synthetic/i)
   })
 
@@ -158,7 +157,32 @@ describe('InquiryForm generate_lead', () => {
 
     expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: INQUIRY_FORM_NAME })
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
+  })
+
+  it('allows a retry after a failed submit', async () => {
+    const gtag = mockGtag()
+    vi.spyOn(analytics, 'isProductionMainHouseHost').mockReturnValue(true)
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<InquiryForm endpoint={ENDPOINT} />)
+    const user = userEvent.setup()
+    await fillValidInquiry(user)
+    await user.click(screen.getByTestId('inquiry-submit'))
+    expect(await screen.findByTestId('inquiry-error')).toBeInTheDocument()
+    expect(gtag).not.toHaveBeenCalled()
+
+    await user.click(screen.getByTestId('inquiry-submit'))
+    expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', expect.objectContaining({ form_name: INQUIRY_FORM_NAME }))
   })
 })

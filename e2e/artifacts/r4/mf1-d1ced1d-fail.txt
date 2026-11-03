@@ -1,0 +1,74 @@
+SHA: d1ced1d9cd6cf42a655e389ac5595ef4f0a82899
+mutant: d1ced1d as-is — sendPageView does not call gtag("set", { page_location })
+
+--- patch ---
+--- a/src/lib/analytics.ts
++++ b/src/lib/analytics.ts
+@@ sendPageView
+-  lastPageViewRoute = route
+-  sendGoogleAnalyticsEvent('page_view', buildPageViewParams(source, pageTitle))
++  lastPageViewRoute = route
++  const params = buildPageViewParams(source, pageTitle)
++  if (typeof window.gtag === 'function') {
++    window.gtag('set', { page_location: params.page_location })
++  }
++  sendGoogleAnalyticsEvent('page_view', params)
+
+--- test output ---
+
+Running 1 test using 1 worker
+
+(node:14502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [chromium] › e2e/pinned-gtag.spec.ts:10:1 › pinned gtag keeps query PII out of page_view, form_start, and generate_lead (573ms)
+
+
+  1) [chromium] › e2e/pinned-gtag.spec.ts:10:1 › pinned gtag keeps query PII out of page_view, form_start, and generate_lead 
+
+    Error: query PII reached a Google request:
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446
+
+    https://mainhouse.canarycove.com:4173/
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447
+
+    https://mainhouse.canarycove.com:4173/
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446
+    https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 12
+
+    - Array []
+    + Array [
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446",
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447",
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446
+    +
+    + https://mainhouse.canarycove.com:4173/",
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447
+    +
+    + https://mainhouse.canarycove.com:4173/",
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AMEAAAQ&ae=a&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=2&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=form_start&ep.form_id=&ep.form_destination=https%3A%2F%2Fformspree.io%2Ff%2Fxvzarybk&epn.form_length=10&ep.first_field_id=inquiry-nature&ep.first_field_name=inquiry&epn.first_field_position=2&_et=64&tfd=446",
+    +   "https://www.google-analytics.com/g/collect?v=2&tid=G-JD6CV2CFYS&gtm=45je6b20v9247172632za200zd9247172632xf1&_p=1793739301076&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AIAAAAQ&cid=1316326664.1793739301&frm=0&ngs=1&pscdl=noapi&rcb=8&sr=1920x1080&uaa=x86&uab=64&uafvl=Not%253AA-Brand%3B8.0.0.0%7CChromium%3B156.0.8078.4%7CHeadlessChrome%3B156.0.8078.4&uam=&uamb=0&uap=Windows&uapv=10.0&uaw=0&ul=en-us&_s=3&tag_exp=115616986~115938466~115938469~118897920~118897930~120213116~120385422~120412528~120469145~120469153~121246026~121246034~123691370&sid=1793739301&sct=1&seg=0&dl=https%3A%2F%2Fmainhouse.canarycove.com%2F%3Fname%3DTest%2520Guest%26phone%3D5550100%26email%3D(redacted)%26utm_source%3Dnewsletter&dt=Canary%20Cove%20Main%20House%20%7C%20Five%20Suites%20for%20Returning%20Groups&en=generate_lead&_c=1&_ee=1&ep.form_name=main_house_inquiry&_et=95&tfd=447",
+    + ]
+
+      34 |     PII.some((token) => value.includes(token)),
+      35 |   )
+    > 36 |   expect(leaked, `query PII reached a Google request:\n${leaked.join('\n')}`).toEqual([])
+         |                                                                               ^
+      37 |   expect(pageViews.some((url) => url.includes('utm_source=newsletter') || decodeURIComponent(url).includes('utm_source=newsletter'))).toBe(true)
+      38 |   guard.assertNoGoogleLeak()
+      39 | })
+        at /workspace/e2e/pinned-gtag.spec.ts:36:79
+
+    Error Context: test-results/pinned-gtag-pinned-gtag-ke-30404-orm-start-and-generate-lead-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/pinned-gtag.spec.ts:10:1 › pinned gtag keeps query PII out of page_view, form_start, and generate_lead 

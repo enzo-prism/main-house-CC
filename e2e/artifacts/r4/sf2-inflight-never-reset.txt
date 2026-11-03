@@ -1,0 +1,42 @@
+SHA: d1ced1d9cd6cf42a655e389ac5595ef4f0a82899
+mutant: s2-inflight-never-reset — delete the finally that sets inFlight.current = false
+
+--- patch ---
+--- a/src/components/inquiry-form.tsx
++++ b/src/components/inquiry-form.tsx
+@@ handleSubmit
+-    } catch {
+-      setStatus('error')
+-      setError('Something went wrong. Please try again or call us.')
+-    } finally {
+-      inFlight.current = false
+-    }
++    } catch {
++      setStatus('error')
++      setError('Something went wrong. Please try again or call us.')
++    }
+
+--- test output ---
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/components/inquiry-form.test.tsx (9 tests | 1 failed | 8 skipped) 1337ms
+   × InquiryForm generate_lead > allows a retry after a failed submit 1336ms
+     → Unable to find an element by: [data-testid="inquiry-success"]
+
+ FAIL  src/components/inquiry-form.test.tsx > InquiryForm generate_lead > allows a retry after a failed submit
+TestingLibraryElementError: Unable to find an element by: [data-testid="inquiry-success"]
+
+After the first fetch reject, inFlight stays true so the second click is a no-op.
+The form remains on the error state ("Something went wrong. Please try again or call us.").
+fetch was called 1 time (not 2). generate_lead did not fire.
+
+ ❯ src/components/inquiry-form.test.tsx:184:25
+    182|
+    183|     await user.click(screen.getByTestId('inquiry-submit'))
+    184|     expect(await screen.findByTestId('inquiry-success')).toBeInTheDocument()
+       |                         ^
+    185|     expect(fetchMock).toHaveBeenCalledTimes(2)
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 skipped (9)

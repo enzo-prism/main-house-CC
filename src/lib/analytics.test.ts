@@ -6,6 +6,7 @@ import {
   loadGoogleAnalytics,
   resetPageViewTracking,
   sanitizeAnalyticsParams,
+  sendGoogleAnalyticsEvent,
   sendPageView,
   shouldLoadGoogleAnalytics,
   startPageViewTracking,
@@ -119,15 +120,17 @@ describe('page_view', () => {
     const gtag = mockGtag()
     const stop = startPageViewTracking()
 
-    expect(gtag).toHaveBeenCalledTimes(1)
-    expect(gtag).toHaveBeenCalledWith('event', 'page_view', {
+    expect(gtag).toHaveBeenCalledTimes(2)
+    expect(gtag).toHaveBeenNthCalledWith(1, 'set', { page_location: `${window.location.origin}/` })
+    expect(gtag).toHaveBeenNthCalledWith(2, 'event', 'page_view', {
       page_location: `${window.location.origin}/`,
       page_path: '/',
       page_title: 'Canary Cove Main House',
     })
 
     window.history.pushState(null, '', '/rates')
-    expect(gtag).toHaveBeenCalledTimes(2)
+    expect(gtag).toHaveBeenCalledTimes(4)
+    expect(gtag).toHaveBeenNthCalledWith(3, 'set', { page_location: `${window.location.origin}/rates` })
     expect(gtag).toHaveBeenLastCalledWith('event', 'page_view', {
       page_location: `${window.location.origin}/rates`,
       page_path: '/rates',
@@ -135,7 +138,7 @@ describe('page_view', () => {
     })
 
     sendPageView()
-    expect(gtag).toHaveBeenCalledTimes(2)
+    expect(gtag).toHaveBeenCalledTimes(4)
     stop()
   })
 
@@ -143,7 +146,7 @@ describe('page_view', () => {
     const gtag = mockGtag()
     const stopFirst = startPageViewTracking()
     const stopSecond = startPageViewTracking()
-    expect(gtag).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledTimes(2)
     stopFirst()
     stopSecond()
   })
@@ -151,11 +154,11 @@ describe('page_view', () => {
   it('does not send a page_view for in-page hash changes', () => {
     const gtag = mockGtag()
     const stop = startPageViewTracking()
-    expect(gtag).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledTimes(2)
 
     window.history.pushState(null, '', '/#book')
     window.dispatchEvent(new HashChangeEvent('hashchange'))
-    expect(gtag).toHaveBeenCalledTimes(1)
+    expect(gtag).toHaveBeenCalledTimes(2)
     stop()
   })
 })
@@ -181,11 +184,40 @@ describe('generate_lead params', () => {
       phone: '555',
       message: 'hello',
     })
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form_name: 'main_house_inquiry' })
-    const params = gtag.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'generate_lead',
+      expect.objectContaining({ form_name: 'main_house_inquiry' }),
+    )
+    const params = gtag.mock.calls.find((call) => call[0] === 'event')?.[2] as Record<string, unknown>
     expect(params).not.toHaveProperty('name')
     expect(params).not.toHaveProperty('email')
     expect(params).not.toHaveProperty('phone')
     expect(params).not.toHaveProperty('message')
+  })
+
+  it('sets a sanitized page_location before generate_lead', () => {
+    const gtag = mockGtag()
+    window.history.replaceState(
+      null,
+      '',
+      '/?name=Test%20Guest&phone=5550100&email=test.guest@example.test&utm_source=newsletter',
+    )
+    trackGenerateLead('main_house_inquiry')
+    const sanitized = `${window.location.origin}/?utm_source=newsletter`
+    expect(gtag).toHaveBeenCalledWith('set', { page_location: sanitized })
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', {
+      form_name: 'main_house_inquiry',
+      page_location: sanitized,
+    })
+    expect(JSON.stringify(gtag.mock.calls)).not.toMatch(/Test Guest|5550100|test\.guest@example\.test/)
+  })
+
+  it('queues Arguments objects from the no-gtag fallback', () => {
+    delete window.gtag
+    window.dataLayer = []
+    sendGoogleAnalyticsEvent('generate_lead', { form_name: 'main_house_inquiry' })
+    expect(window.dataLayer).toHaveLength(1)
+    expect(Object.prototype.toString.call(window.dataLayer[0])).toBe('[object Arguments]')
   })
 })
