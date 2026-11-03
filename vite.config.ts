@@ -17,6 +17,9 @@ export default defineConfig({
   },
   preview: {
     allowedHosts: true,
+    headers: {
+      'Referrer-Policy': 'strict-origin',
+    },
     https: e2eHttps
       ? {
           cert: readFileSync(e2eCert),

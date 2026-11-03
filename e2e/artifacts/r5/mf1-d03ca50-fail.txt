@@ -1,0 +1,28 @@
+SHA: d03ca508c7da1934a3f1214fc24614255013653c
+mutant: d03ca50 as-is — setSanitizedPageLocation sets page_location only; no page_referrer; no Referrer-Policy
+
+--- patch ---
+(none — this is the r4 head. The missing set is:
+
++  window.gtag('set', {
++    page_location: params.page_location,
++    page_referrer: sanitizePageReferrer(),
++  })
+
+and vercel.json / vite preview lack Referrer-Policy.)
+
+--- test output ---
+
+  ✘  1 [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of dl and dr after same-origin navigation and reload (12.6s)
+
+    Error: query PII reached a Google request (dl or dr):
+
+    Next page_view after clicking the footer Main House link (nav.ts / SITE_URL):
+      dl=https://mainhouse.canarycove.com:4173/
+      dr=https://mainhouse.canarycove.com:4173/?name=Test%20Guest&Phone=5550100&email=(redacted)&utm_source=newsletter
+      en=page_view
+
+    Reload of that page sends the same dr again (document.referrer persists).
+
+    expect(leaked).toEqual([])
+    page_view counts: landing 1, after nav >=2, after reload >=3

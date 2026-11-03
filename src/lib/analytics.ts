@@ -10,7 +10,7 @@ export type AnalyticsParams = Record<string, AnalyticsPrimitive | null | undefin
 type GtagFn = {
   (command: 'js', date: Date): void
   (command: 'config', target: string, params?: { send_page_view?: boolean }): void
-  (command: 'set', params: { page_location?: string; page_path?: string; page_title?: string }): void
+  (command: 'set', params: { page_location?: string; page_path?: string; page_title?: string; page_referrer?: string }): void
   (command: 'event', name: string, params?: AnalyticsParams): void
 }
 
@@ -55,6 +55,7 @@ export const ATTRIBUTION_QUERY_PARAMS = [
 const ATTRIBUTION_QUERY_PARAM_SET = new Set<string>(ATTRIBUTION_QUERY_PARAMS)
 
 let lastPageViewRoute: string | null = null
+let lastSanitizedPageLocation: string | null = null
 let historyPatched = false
 const originalHistory = {
   pushState: typeof history !== 'undefined' ? history.pushState.bind(history) : null,
@@ -121,11 +122,34 @@ function installArgumentsGtag() {
   } as GtagFn
 }
 
+export function sanitizePageReferrer(
+  referrer = typeof document !== 'undefined' ? document.referrer : '',
+  previousLocation = lastSanitizedPageLocation,
+  currentOrigin = typeof window !== 'undefined' ? window.location.origin : '',
+) {
+  if (previousLocation) return previousLocation
+  if (!referrer) return undefined
+  try {
+    const url = new URL(referrer)
+    if (currentOrigin && url.origin === currentOrigin) {
+      return buildPageViewParams(url).page_location
+    }
+    return `${url.origin}/`
+  } catch {
+    return undefined
+  }
+}
+
 export function setSanitizedPageLocation(source: string | URL | Location = window.location, pageTitle = document.title) {
   const params = buildPageViewParams(source, pageTitle)
+  const pageReferrer = sanitizePageReferrer()
   if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-    window.gtag('set', { page_location: params.page_location })
+    window.gtag('set', {
+      page_location: params.page_location,
+      ...(pageReferrer ? { page_referrer: pageReferrer } : {}),
+    })
   }
+  lastSanitizedPageLocation = params.page_location
   return params
 }
 
@@ -151,11 +175,12 @@ export function sendPageView(source: string | URL | Location = window.location, 
 export function trackGenerateLead(formName: string, extra?: AnalyticsParams) {
   const pageLocation = buildPageViewParams().page_location
   setSanitizedPageLocation()
-  sendGoogleAnalyticsEvent('generate_lead', { form_name: formName, page_location: pageLocation, ...extra })
+  sendGoogleAnalyticsEvent('generate_lead', { form_name: formName, ...extra, page_location: pageLocation })
 }
 
 export function resetPageViewTracking() {
   lastPageViewRoute = null
+  lastSanitizedPageLocation = null
 }
 
 export function notifyRouteChange() {

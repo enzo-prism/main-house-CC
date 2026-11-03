@@ -29,3 +29,4 @@ blob-report
 .vercel
 .env*
 e2e/certs/*.pem
+e2e/stubs/gtag.pinned.js

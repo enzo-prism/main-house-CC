@@ -7,6 +7,7 @@ import {
   resetPageViewTracking,
   sanitizeAnalyticsParams,
   sendGoogleAnalyticsEvent,
+  sanitizePageReferrer,
   sendPageView,
   shouldLoadGoogleAnalytics,
   startPageViewTracking,
@@ -103,6 +104,19 @@ describe('page_view', () => {
     })
   })
 
+  it('keeps uppercase attribution keys such as UTM_SOURCE', () => {
+    expect(
+      buildPageViewParams(
+        new URL('https://mainhouse.canarycove.com/?UTM_SOURCE=Newsletter&Gclid=TestGclid&NAME=Test%20Guest'),
+        'Home',
+      ),
+    ).toEqual({
+      page_location: 'https://mainhouse.canarycove.com/?UTM_SOURCE=Newsletter&Gclid=TestGclid',
+      page_path: '/?UTM_SOURCE=Newsletter&Gclid=TestGclid',
+      page_title: 'Home',
+    })
+  })
+
   it('drops PII query keys when no attribution params are present', () => {
     expect(
       buildPageViewParams(
@@ -130,7 +144,10 @@ describe('page_view', () => {
 
     window.history.pushState(null, '', '/rates')
     expect(gtag).toHaveBeenCalledTimes(4)
-    expect(gtag).toHaveBeenNthCalledWith(3, 'set', { page_location: `${window.location.origin}/rates` })
+    expect(gtag).toHaveBeenNthCalledWith(3, 'set', {
+      page_location: `${window.location.origin}/rates`,
+      page_referrer: `${window.location.origin}/`,
+    })
     expect(gtag).toHaveBeenLastCalledWith('event', 'page_view', {
       page_location: `${window.location.origin}/rates`,
       page_path: '/rates',
@@ -164,6 +181,11 @@ describe('page_view', () => {
 })
 
 describe('generate_lead params', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    resetPageViewTracking()
+  })
+
   it('keeps form_name and drops PII keys', () => {
     expect(
       sanitizeAnalyticsParams({
@@ -211,6 +233,33 @@ describe('generate_lead params', () => {
       page_location: sanitized,
     })
     expect(JSON.stringify(gtag.mock.calls)).not.toMatch(/Test Guest|5550100|test\.guest@example\.test/)
+  })
+
+  it('does not let extra params override the sanitized page_location', () => {
+    const gtag = mockGtag()
+    trackGenerateLead('main_house_inquiry', {
+      page_location: 'https://mainhouse.canarycove.com/?name=Test%20Guest',
+    })
+    const params = gtag.mock.calls.find((call) => call[0] === 'event')?.[2] as Record<string, unknown>
+    expect(params.page_location).toBe(`${window.location.origin}/`)
+    expect(String(params.page_location)).not.toMatch(/name=/)
+  })
+
+  it('sanitizes page_referrer from the previous location, same-origin referrer, or origin only', () => {
+    const origin = window.location.origin
+    expect(
+      sanitizePageReferrer(
+        `${origin}/?name=Test%20Guest&Phone=5550100&utm_source=newsletter`,
+        null,
+        origin,
+      ),
+    ).toBe(`${origin}/?utm_source=newsletter`)
+    expect(
+      sanitizePageReferrer(`${origin}/?name=Test%20Guest`, `${origin}/rates?utm_source=ad`, origin),
+    ).toBe(`${origin}/rates?utm_source=ad`)
+    expect(sanitizePageReferrer('https://evil.test/?name=Test%20Guest&phone=5550100', null, origin)).toBe(
+      'https://evil.test/',
+    )
   })
 
   it('queues Arguments objects from the no-gtag fallback', () => {

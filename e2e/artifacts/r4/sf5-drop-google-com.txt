@@ -1,4 +1,4 @@
-SHA: d1ced1d9cd6cf42a655e389ac5595ef4f0a82899
+SHA: uncommitted r4 working tree after d1ced1d9cd6cf42a655e389ac5595ef4f0a82899 (e2e/google-hosts.ts did not exist at d1ced1d; later committed as d03ca508c7da1934a3f1214fc24614255013653c)
 mutant: s6-guard-drops-google.com — remove google.com from GOOGLE_HOST_SUFFIXES
 
 --- patch ---

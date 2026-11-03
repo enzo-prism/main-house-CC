@@ -8,7 +8,15 @@ import { isGoogleHost } from './google-hosts'
 export { GOOGLE_HOST_SUFFIXES, isGoogleHost } from './google-hosts'
 
 const STUB = readFileSync(fileURLToPath(new URL('./stubs/gtag.js', import.meta.url)), 'utf8')
-const PINNED = readFileSync(fileURLToPath(new URL('./stubs/gtag.pinned.js', import.meta.url)), 'utf8')
+const PINNED_PATH = fileURLToPath(new URL('./stubs/gtag.pinned.js', import.meta.url))
+
+function pinnedGtag() {
+  try {
+    return readFileSync(PINNED_PATH, 'utf8')
+  } catch {
+    throw new Error('Pinned gtag.js is missing. Run: node e2e/fetch-pinned-gtag.mjs')
+  }
+}
 
 export const NON_PROD_HOSTS = [
   'localhost',
@@ -31,7 +39,7 @@ export async function installGoogleGuard(page: Page, options?: { gtag?: 'stub' |
   const googlePayloads: string[] = []
   const seenGoogle: string[] = []
   const fulfilledGoogle: string[] = []
-  const gtagBody = options?.gtag === 'pinned' ? PINNED : STUB
+  const gtagBody = options?.gtag === 'pinned' ? pinnedGtag() : STUB
 
   page.on('request', (request) => {
     const url = new URL(request.url())

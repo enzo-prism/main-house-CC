@@ -1,5 +1,5 @@
-SHA: working tree after MF-1 fix (gtag set + sanitized generate_lead)
-pass-after of e2e/artifacts/r4/mf1-d1ced1d-fail.txt
+SHA: d03ca508c7da1934a3f1214fc24614255013653c
+pass-after of e2e/artifacts/r4/mf1-d1ced1d-fail.txt (run on the r4 working tree, committed as this SHA)
 
 --- test output ---
 

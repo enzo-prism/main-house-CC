@@ -1,5 +1,6 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { InquiryForm } from '@/components/inquiry-form'
@@ -53,6 +54,18 @@ describe('InquiryForm generate_lead', () => {
     expect(form.querySelector('input[name="_subject"]')).toHaveAttribute('value', 'Main House inquiry')
     expect(form.querySelector('input[name="accommodation"]')).toHaveAttribute('value', 'main-house')
     expect(form.querySelector('input[name="returning"]')).toHaveAttribute('value', 'yes')
+  })
+
+  it('prerenders a neutral env=nojs before hydration', () => {
+    const html = renderToString(<InquiryForm endpoint={ENDPOINT} />)
+    expect(html).toMatch(/name="env"[^>]*value="nojs"|value="nojs"[^>]*name="env"/)
+  })
+
+  it('hydrates env from the host after mount', async () => {
+    render(<InquiryForm endpoint={ENDPOINT} />)
+    await waitFor(() => {
+      expect(screen.getByTestId('inquiry-form').querySelector('input[name="env"]')).toHaveAttribute('value', 'preview')
+    })
   })
 
   it('uses the production Formspree action by default', () => {

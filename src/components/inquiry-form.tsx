@@ -41,7 +41,7 @@ export function InquiryForm({ endpoint = FORM_ENDPOINT, formName = INQUIRY_FORM_
   const [status, setStatus] = useState<FormStatus>('idle')
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<Set<string>>(new Set())
-  const [env, setEnv] = useState('preview')
+  const [env, setEnv] = useState('nojs')
   const inFlight = useRef(false)
 
   useEffect(() => {

@@ -95,6 +95,21 @@ test.describe('GA4 on localhost', () => {
     expect(posts).toEqual([])
   })
 
+  test('no-gtag fallback queues Arguments objects', async ({ page }) => {
+    await page.goto('/#book')
+    await page.getByLabel('Nature of inquiry').fill('Synthetic inquiry for a mocked form.')
+    await page.getByLabel('Name').fill('Test Guest')
+    await page.getByLabel('Email').fill('test.guest@example.test')
+    await page.getByTestId('inquiry-submit').click()
+    await expect(page.getByTestId('inquiry-success')).toBeVisible()
+
+    const kinds = await page.evaluate(() =>
+      (window.dataLayer ?? []).map((entry) => Object.prototype.toString.call(entry)),
+    )
+    expect(kinds.length).toBeGreaterThan(0)
+    expect(kinds.every((kind) => kind === '[object Arguments]')).toBe(true)
+  })
+
   test('invalid or honeypot submits fire no generate_lead', async ({ page }) => {
     await installAnalyticsRecorder(page)
     await page.goto('/#book')

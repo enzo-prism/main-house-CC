@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 
 execFileSync(process.execPath, [fileURLToPath(new URL('./e2e/make-certs.mjs', import.meta.url))])
+execFileSync(process.execPath, [fileURLToPath(new URL('./e2e/fetch-pinned-gtag.mjs', import.meta.url))], {
+  stdio: 'inherit',
+})
 
 const hostMaps = [
   'MAP mainhouse.canarycove.com 127.0.0.1',
