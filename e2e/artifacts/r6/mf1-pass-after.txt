@@ -1,6 +1,5 @@
-SHA: (stamped after the sanitizeAddressBar commit)
-
-pass-after of e2e/artifacts/r6/mf1-743b67a-fail.txt
+SHA: d3203fd571f63de1bc6202371224d0cd8566e2b9
+pass-after of e2e/artifacts/r6/mf1-743b67a-fail.txt (run on the r6 working tree, committed as this SHA)
 
 --- test output ---
 
