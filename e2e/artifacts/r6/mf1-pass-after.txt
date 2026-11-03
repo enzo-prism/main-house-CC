@@ -1,0 +1,18 @@
+SHA: (stamped after the sanitizeAddressBar commit)
+
+pass-after of e2e/artifacts/r6/mf1-743b67a-fail.txt
+
+--- test output ---
+
+  ✓  [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of dl and dr after SPA history, same-origin navigation, and reload (13.3s)
+  ✓  [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of dl and dr when Referrer-Policy is stripped (13.5s)
+
+  Real pinned gtag.js (cache hit sha256 b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a).
+  Land /?name=Test%20Guest&Phone=5550100&email=…, wait for first page_view,
+  assert address bar already dropped name/Phone/email and kept utm_source,
+  SPA pushState /rates, wait for page_views>=2 AND ae=a>=1 (~11s),
+  click Main House, reload.
+
+  No outgoing Google request contains Test Guest / 5550100 / test.guest in dl or dr,
+  including the enhanced-measurement history page_view (ae=a).
+  Same assertion holds when the preview Referrer-Policy header is stripped.

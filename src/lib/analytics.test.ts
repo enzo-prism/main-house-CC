@@ -5,6 +5,7 @@ import {
   buildPageViewParams,
   loadGoogleAnalytics,
   resetPageViewTracking,
+  sanitizeAddressBar,
   sanitizeAnalyticsParams,
   sendGoogleAnalyticsEvent,
   sanitizePageReferrer,
@@ -71,6 +72,22 @@ describe('Google Analytics host gating', () => {
       }),
     ).toBe(false)
 
+    document.querySelector('script[data-ga4="gtag"]')?.remove()
+    delete window.gtag
+  })
+
+  it('strips PII from the address bar before injecting gtag', () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/?name=Test%20Guest&Phone=5550100&utm_source=newsletter#book',
+    )
+    delete window.gtag
+    window.dataLayer = []
+    loadGoogleAnalytics('mainhouse.canarycove.com')
+    expect(window.location.search).toBe('?utm_source=newsletter')
+    expect(window.location.hash).toBe('#book')
+    expect(document.querySelector('script[data-ga4="gtag"]')?.getAttribute('src')).toContain('googletagmanager.com/gtag/js')
     document.querySelector('script[data-ga4="gtag"]')?.remove()
     delete window.gtag
   })
@@ -168,6 +185,19 @@ describe('page_view', () => {
     stopSecond()
   })
 
+  it('strips PII query keys from the address bar and keeps attribution plus the hash', () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/?name=Test%20Guest&Phone=5550100&email=test.guest@example.test&utm_source=newsletter#book',
+    )
+    expect(sanitizeAddressBar()).toBe(true)
+    expect(window.location.pathname).toBe('/')
+    expect(window.location.search).toBe('?utm_source=newsletter')
+    expect(window.location.hash).toBe('#book')
+    expect(sanitizeAddressBar()).toBe(false)
+  })
+
   it('does not send a page_view for in-page hash changes', () => {
     const gtag = mockGtag()
     const stop = startPageViewTracking()
@@ -259,6 +289,30 @@ describe('generate_lead params', () => {
     ).toBe(`${origin}/rates?utm_source=ad`)
     expect(sanitizePageReferrer('https://evil.test/?name=Test%20Guest&phone=5550100', null, origin)).toBe(
       'https://evil.test/',
+    )
+    expect(
+      sanitizePageReferrer(
+        'https://mainhouse.canarycove.com.evil.test/?name=Test%20Guest&utm_source=newsletter',
+        null,
+        'https://mainhouse.canarycove.com',
+      ),
+    ).toBe('https://mainhouse.canarycove.com.evil.test/')
+    expect(sanitizePageReferrer('android-app://com.google.android.gm/', null, origin)).toBeUndefined()
+    expect(sanitizePageReferrer('about:blank', null, origin)).toBeUndefined()
+  })
+
+  it('does not reset page_referrer to the current page on generate_lead', () => {
+    const gtag = mockGtag()
+    startPageViewTracking()
+    gtag.mockClear()
+    trackGenerateLead('main_house_inquiry')
+    for (const call of gtag.mock.calls.filter((entry) => entry[0] === 'set')) {
+      expect(call[1]).not.toHaveProperty('page_referrer')
+    }
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'generate_lead',
+      expect.objectContaining({ form_name: 'main_house_inquiry' }),
     )
   })
 

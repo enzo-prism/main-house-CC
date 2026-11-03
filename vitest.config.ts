@@ -11,6 +11,6 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'e2e/google-hosts.test.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'e2e/google-hosts.test.ts', 'e2e/vercel-headers.test.ts'],
   },
 })

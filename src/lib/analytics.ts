@@ -131,6 +131,8 @@ export function sanitizePageReferrer(
   if (!referrer) return undefined
   try {
     const url = new URL(referrer)
+    if (url.origin === 'null') return undefined
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return undefined
     if (currentOrigin && url.origin === currentOrigin) {
       return buildPageViewParams(url).page_location
     }
@@ -138,6 +140,16 @@ export function sanitizePageReferrer(
   } catch {
     return undefined
   }
+}
+
+/** Drop non-attribution query keys from the address bar before gtag reads location. */
+export function sanitizeAddressBar() {
+  if (typeof window === 'undefined' || !originalHistory.replaceState) return false
+  const url = new URL(window.location.href)
+  const nextSearch = attributionSearch(url)
+  if (url.search === nextSearch) return false
+  originalHistory.replaceState(history.state, '', `${url.pathname}${nextSearch}${url.hash}`)
+  return true
 }
 
 export function setSanitizedPageLocation(source: string | URL | Location = window.location, pageTitle = document.title) {
@@ -174,7 +186,9 @@ export function sendPageView(source: string | URL | Location = window.location, 
 
 export function trackGenerateLead(formName: string, extra?: AnalyticsParams) {
   const pageLocation = buildPageViewParams().page_location
-  setSanitizedPageLocation()
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    window.gtag('set', { page_location: pageLocation })
+  }
   sendGoogleAnalyticsEvent('generate_lead', { form_name: formName, ...extra, page_location: pageLocation })
 }
 
@@ -230,6 +244,8 @@ function installGtagSnippet() {
 
 export function loadGoogleAnalytics(hostname = currentHostname()) {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
+
+  sanitizeAddressBar()
 
   const allowed = shouldLoadGoogleAnalytics(hostname)
   if (allowed) {

@@ -51,7 +51,7 @@ assertLooksLikeGtag(body)
 const actual = sha256(body)
 if (!allowed.has(actual)) {
   throw new Error(
-    `pinned gtag sha256 mismatch\nexpected one of ${[...allowed].join(' ')}\nactual   ${actual}\nurl      ${source}`,
+    `Unknown pinned gtag.js sha256: ${actual}\nAdd that digest to e2e/stubs/gtag.pinned.js.sha256 after reviewing the diff against a known snapshot.\nSee README.md#pinned-gtagjs\nurl ${source}\nknown ${[...allowed].join(' ')}`,
   )
 }
 

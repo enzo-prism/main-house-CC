@@ -5,22 +5,29 @@ pnpm exec tsc -b
   (exit 0)
 
 pnpm test
-  Test Files  4 passed (4)
-      Tests  41 passed (41)
+  Test Files  5 passed (5)
+      Tests  45 passed (45)
 
 pnpm test:e2e
-  16 passed (25.3s)
-  including pinned-gtag dl/dr after same-origin nav + reload
+  17 passed (31.5s)
+  including pinned-gtag:
+    page_view / form_start / generate_lead
+    dl/dr after SPA history (wait for ae=a) + same-origin nav + reload
+    same journey with Referrer-Policy stripped
 
 pnpm build
   prerender: wrote 88.0 KB of markup into dist/index.html
   form method="POST" action="https://formspree.io/f/xvzarybk"
   hidden site=main_house env=nojs _subject accommodation returning
 
-Fail-before / pass-after (r5):
-  MF-1 page_referrer leak at d03ca50: next page_view dl=/ but dr has name/Phone
-    e2e/artifacts/r5/mf1-d03ca50-fail.txt
-    pass-after: e2e/artifacts/r5/mf1-pass-after.txt
-  After restore: lint 0, tsc 0, vitest 41, e2e 16. No real Google/Formspree.
+Fail-before / pass-after (r6):
+  MF-1 ae=a history page_view at 743b67a: dl=/rates, dr=full PII landing URL
+    e2e/artifacts/r6/mf1-743b67a-fail.txt
+    pass-after: e2e/artifacts/r6/mf1-pass-after.txt
+  r5 restamp: e2e/artifacts/r5/mf1-d03ca50-fail.txt
+    (d03ca50 product + r5 e2e files; raw Playwright output)
+  After restore: lint 0, tsc 0, vitest 45, e2e 17. No real Google/Formspree.
   Fixtures fake only (Test Guest / test.guest@example.test / 5550100).
-  Pinned gtag fetched at test time, sha256 b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a.
+  Pinned gtag fetched at test time. Allowlist (not a single hash):
+    b5a0541d… 3ec457eb… f7fb5db4… b50370db… 5837b313… 2dc451c1…
+    Unknown digest fails closed and prints `Unknown pinned gtag.js sha256: <digest>`.

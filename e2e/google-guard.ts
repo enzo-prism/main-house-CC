@@ -26,6 +26,14 @@ export const NON_PROD_HOSTS = [
   'xmainhouse.canarycove.com',
 ] as const
 
+const LOCAL_PREVIEW_HOSTS = new Set<string>([
+  '127.0.0.1',
+  'localhost',
+  'mainhouse.canarycove.com',
+  'www.mainhouse.canarycove.com',
+  ...NON_PROD_HOSTS,
+])
+
 export type GoogleGuard = {
   collectHits: string[]
   googlePayloads: string[]
@@ -34,7 +42,10 @@ export type GoogleGuard = {
   assertNoGoogleLeak: () => void
 }
 
-export async function installGoogleGuard(page: Page, options?: { gtag?: 'stub' | 'pinned' }): Promise<GoogleGuard> {
+export async function installGoogleGuard(
+  page: Page,
+  options?: { gtag?: 'stub' | 'pinned'; stripReferrerPolicy?: boolean },
+): Promise<GoogleGuard> {
   const collectHits: string[] = []
   const googlePayloads: string[] = []
   const seenGoogle: string[] = []
@@ -51,6 +62,15 @@ export async function installGoogleGuard(page: Page, options?: { gtag?: 'stub' |
   await page.route('**/*', async (route) => {
     const url = new URL(route.request().url())
     if (!isGoogleHost(url.hostname)) {
+      if (options?.stripReferrerPolicy && LOCAL_PREVIEW_HOSTS.has(url.hostname)) {
+        const fetchUrl = new URL(url.href)
+        fetchUrl.hostname = '127.0.0.1'
+        const response = await route.fetch({ url: fetchUrl.href })
+        const headers = { ...response.headers() }
+        delete headers['referrer-policy']
+        await route.fulfill({ response, headers })
+        return
+      }
       await route.continue()
       return
     }
