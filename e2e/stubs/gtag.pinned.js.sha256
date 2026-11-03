@@ -1,1 +1,4 @@
-b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a  e2e/stubs/gtag.pinned.js
+# Allowed sha256 digests of real googletagmanager.com/gtag/js?id=G-JD6CV2CFYS
+# snapshots (Google serves more than one container build).
+b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a
+3ec457eb6c52371d753dac0ff6841f2f7b3131b9e6a26927a7733edde8988469
