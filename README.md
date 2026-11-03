@@ -71,7 +71,7 @@ Keep render output deterministic so hydration matches:
 
 ## Pinned gtag.js
 
-End-to-end tests fetch `https://www.googletagmanager.com/gtag/js?id=G-JD6CV2CFYS` at test time (`e2e/fetch-pinned-gtag.mjs`) and refuse to run unless the file's sha256 is listed in `e2e/stubs/gtag.pinned.js.sha256`. The script is not committed. Google serves more than one container build. Known snapshots currently include `b5a0541d…`, `3ec457eb…`, `f7fb5db4…`, `b50370db…`, `5837b313…`, and `2dc451c1…`. Eggbot has also seen prefixes `3c78f4e1…` and `80acdf18…` (full 64-character digests were not captured here; add them the first time fetch prints them).
+End-to-end tests fetch `https://www.googletagmanager.com/gtag/js?id=G-JD6CV2CFYS` at test time (`e2e/fetch-pinned-gtag.mjs`) and refuse to run unless the file's sha256 is listed in `e2e/stubs/gtag.pinned.js.sha256`. The script is not committed. Google serves more than one container build. Known snapshots currently include `b5a0541d…`, `3ec457eb…`, `f7fb5db4…`, `b50370db…`, `5837b313…`, `2dc451c1…`, `144c434d…`, and `803df84f…` (the last of those was first seen on GitHub Actions). Eggbot has also seen prefixes `3c78f4e1…` and `80acdf18…` (full 64-character digests were not captured here; add them the first time fetch prints them).
 
 To add a newly observed hash:
 

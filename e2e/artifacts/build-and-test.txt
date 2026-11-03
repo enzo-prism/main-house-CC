@@ -29,5 +29,5 @@ Fail-before / pass-after (r6):
   After restore: lint 0, tsc 0, vitest 45, e2e 17. No real Google/Formspree.
   Fixtures fake only (Test Guest / test.guest@example.test / 5550100).
   Pinned gtag fetched at test time. Allowlist (not a single hash):
-    b5a0541d… 3ec457eb… f7fb5db4… b50370db… 5837b313… 2dc451c1…
+    b5a0541d… 3ec457eb… f7fb5db4… b50370db… 5837b313… 2dc451c1… 144c434d… 803df84f…
     Unknown digest fails closed and prints `Unknown pinned gtag.js sha256: <digest>`.
