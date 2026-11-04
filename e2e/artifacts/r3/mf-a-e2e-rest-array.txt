@@ -1,0 +1,34 @@
+
+Running 1 test using 1 worker
+
+(node:12737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host (10.2s)
+
+
+  1) [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+       9 |   await page.goto('https://mainhouse.canarycove.com:4173/')
+      10 |   await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(1)
+    > 11 |   await expect.poll(() => guard.collectHits.length, { timeout: 10_000 }).toBeGreaterThan(0)
+         |                                                                          ^
+      12 |
+      13 |   expect(guard.collectHits.some((url) => url.includes('JD6CV2CFYS') && url.includes('en=page_view'))).toBe(true)
+      14 |   expect(guard.collectHits.every((url) => url.includes('google-analytics.com'))).toBe(true)
+        at /workspace/e2e/collect.spec.ts:11:74
+
+    Error Context: test-results/collect-serves-a-local-gta-7baff-ally-on-the-production-host-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/collect.spec.ts:5:1 › serves a local gtag stub and answers collect locally on the production host 

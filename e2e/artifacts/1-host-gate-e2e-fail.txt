@@ -1,0 +1,179 @@
+Mutant: isProductionMainHouseHost always returns true (host gate removed).
+Expected: e2e/hosts.spec.ts fails on every non-prod host because gtag is injected.
+
+
+Running 5 tests using 1 worker
+
+(node:9032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost (5.2s)
+(node:9121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  2 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app (5.2s)
+(node:9211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  3 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com (5.2s)
+(node:9304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  4 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test (5.3s)
+(node:9395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  5 [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com (5.2s)
+
+
+  1) [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost ───────────────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[data-ga4="gtag"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[data-ga4="gtag"]') with timeout 5000ms
+      - waiting for locator('script[data-ga4="gtag"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      11 |     await page.goto(url)
+      12 |
+    > 13 |     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
+         |                                                           ^
+      14 |     await expect(page.locator('script[src*="googletagmanager.com/gtag/js"]')).toHaveCount(0)
+      15 |     expect(guard.collectHits).toEqual([])
+      16 |     expect(guard.seenGoogle).toEqual([])
+        at /workspace/e2e/hosts.spec.ts:13:59
+
+    Error Context: test-results/hosts-sends-nothing-on-localhost-chromium/error-context.md
+
+  2) [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[data-ga4="gtag"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[data-ga4="gtag"]') with timeout 5000ms
+      - waiting for locator('script[data-ga4="gtag"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      11 |     await page.goto(url)
+      12 |
+    > 13 |     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
+         |                                                           ^
+      14 |     await expect(page.locator('script[src*="googletagmanager.com/gtag/js"]')).toHaveCount(0)
+      15 |     expect(guard.collectHits).toEqual([])
+      16 |     expect(guard.seenGoogle).toEqual([])
+        at /workspace/e2e/hosts.spec.ts:13:59
+
+    Error Context: test-results/hosts-sends-nothing-on-can-d6305-n-house-git-main-vercel-app-chromium/error-context.md
+
+  3) [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com ────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[data-ga4="gtag"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[data-ga4="gtag"]') with timeout 5000ms
+      - waiting for locator('script[data-ga4="gtag"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      11 |     await page.goto(url)
+      12 |
+    > 13 |     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
+         |                                                           ^
+      14 |     await expect(page.locator('script[src*="googletagmanager.com/gtag/js"]')).toHaveCount(0)
+      15 |     expect(guard.collectHits).toEqual([])
+      16 |     expect(guard.seenGoogle).toEqual([])
+        at /workspace/e2e/hosts.spec.ts:13:59
+
+    Error Context: test-results/hosts-sends-nothing-on-staging-mainhouse-canarycove-com-chromium/error-context.md
+
+  4) [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test ──────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[data-ga4="gtag"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[data-ga4="gtag"]') with timeout 5000ms
+      - waiting for locator('script[data-ga4="gtag"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      11 |     await page.goto(url)
+      12 |
+    > 13 |     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
+         |                                                           ^
+      14 |     await expect(page.locator('script[src*="googletagmanager.com/gtag/js"]')).toHaveCount(0)
+      15 |     expect(guard.collectHits).toEqual([])
+      16 |     expect(guard.seenGoogle).toEqual([])
+        at /workspace/e2e/hosts.spec.ts:13:59
+
+    Error Context: test-results/hosts-sends-nothing-on-mainhouse-canarycove-com-evil-test-chromium/error-context.md
+
+  5) [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com ───────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[data-ga4="gtag"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[data-ga4="gtag"]') with timeout 5000ms
+      - waiting for locator('script[data-ga4="gtag"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      11 |     await page.goto(url)
+      12 |
+    > 13 |     await expect(page.locator('script[data-ga4="gtag"]')).toHaveCount(0)
+         |                                                           ^
+      14 |     await expect(page.locator('script[src*="googletagmanager.com/gtag/js"]')).toHaveCount(0)
+      15 |     expect(guard.collectHits).toEqual([])
+      16 |     expect(guard.seenGoogle).toEqual([])
+        at /workspace/e2e/hosts.spec.ts:13:59
+
+    Error Context: test-results/hosts-sends-nothing-on-xmainhouse-canarycove-com-chromium/error-context.md
+
+  5 failed
+    [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on localhost ────────────────────────────────
+    [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on canary-cove-main-house-git-main.vercel.app 
+    [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on staging.mainhouse.canarycove.com ─────────
+    [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on mainhouse.canarycove.com.evil.test ───────
+    [chromium] › e2e/hosts.spec.ts:6:3 › sends nothing on xmainhouse.canarycove.com ────────────────

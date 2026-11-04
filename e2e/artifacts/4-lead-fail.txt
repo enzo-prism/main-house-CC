@@ -1,0 +1,62 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/lead-form.test.ts (9 tests | 2 failed | 7 skipped) 8ms
+   ↓ lead response success > accepts only a 2xx response with ok:true
+   ↓ lead response success > rejects a 2xx response without ok:true
+   × lead response success > rejects a 400 with {ok:true} 5ms
+     → expected true to be false // Object.is equality
+   ↓ lead response success > rejects ok:false even on HTTP 200
+   ↓ submitLeadForm > fires generate_lead once after a 200 with ok:true on production
+   × submitLeadForm > does not fire generate_lead on a 400 with {ok:true} 2ms
+     → expected true to be false // Object.is equality
+   ↓ submitLeadForm > fires nothing on a network error
+   ↓ submitLeadForm > does not POST on non-prod hosts and still records a local mocked success
+   ↓ submitLeadForm > tags production posts with site and env
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/lead-form.test.ts > lead response success > rejects a 400 with {ok:true}
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/lead-form.test.ts:25:80
+     23| 
+     24|   it('rejects a 400 with {ok:true}', () => {
+     25|     expect(isSuccessfulLeadResponse({ ok: false, status: 400 }, { ok: …
+       |                                                                                ^
+     26|   })
+     27| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/lead-form.test.ts > submitLeadForm > does not fire generate_lead on a 400 with {ok:true}
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/lead-form.test.ts:89:23
+     87|     })
+     88| 
+     89|     expect(result.ok).toBe(false)
+       |                       ^
+     90|     expect(result.status).toBe(400)
+     91|     expect(gtag).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 skipped (9)
+   Start at  18:22:26
+   Duration  690ms (transform 85ms, setup 124ms, collect 71ms, tests 8ms, environment 317ms, prepare 67ms)
+

@@ -69,6 +69,17 @@ Keep render output deterministic so hydration matches:
 - Time-dependent UI renders a stable value first and updates after mount. Examples are `LocalTime`, and the rate picker that prerenders December and then moves to the current Belize month.
 - `CountUp` prerenders its final value.
 
+## Pinned gtag.js
+
+End-to-end tests fetch `https://www.googletagmanager.com/gtag/js?id=G-JD6CV2CFYS` at test time (`e2e/fetch-pinned-gtag.mjs`) and refuse to run unless the file's sha256 is listed in `e2e/stubs/gtag.pinned.js.sha256`. The script is not committed. Google serves more than one container build. Known snapshots currently include `b5a0541d…`, `3ec457eb…`, `f7fb5db4…`, `b50370db…`, `5837b313…`, `2dc451c1…`, `144c434d…`, and `803df84f…` (the last of those was first seen on GitHub Actions). Eggbot has also seen prefixes `3c78f4e1…` and `80acdf18…` (full 64-character digests were not captured here; add them the first time fetch prints them).
+
+To add a newly observed hash:
+
+1. Re-run `node e2e/fetch-pinned-gtag.mjs`. The script retries a few times (Google serves mixed builds). If every attempt is unknown it fails closed and prints `Unknown pinned gtag.js sha256: <digest>` with the new hash named in the message. CI caches `e2e/stubs/gtag.pinned.js` under a stable key so adding a hash does not bust a known snapshot.
+2. Diff that body against a known snapshot (`e2e/stubs/gtag.pinned.js` after a cache hit, or a previous fetch). Typical deltas are country-code tables or a one-byte flag.
+3. If the delta is a container-build variant (not unexpected third-party code), append the full 64-character digest to `e2e/stubs/gtag.pinned.js.sha256`. Do not add an 8-character prefix; the allowlist parser requires `^[0-9a-f]{64}$`.
+4. Re-run `pnpm test:e2e`.
+
 ## Commands
 
 ```bash

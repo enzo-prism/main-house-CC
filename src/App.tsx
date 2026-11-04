@@ -1,4 +1,5 @@
 import { Footer } from '@/components/footer'
+import { GoogleAnalytics } from '@/components/google-analytics'
 import { Header } from '@/components/header'
 import { RevealObserver } from '@/components/motion/reveal-observer'
 import { SmoothScroll } from '@/components/motion/smooth-scroll'
@@ -35,6 +36,7 @@ export default function App() {
       <Footer />
       <RevealObserver />
       <SmoothScroll />
+      <GoogleAnalytics />
     </>
   )
 }

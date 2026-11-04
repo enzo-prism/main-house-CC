@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 
 import { CldImage } from '@/components/cld-image'
 import { CtaLink } from '@/components/cta-link'
+import { InquiryForm } from '@/components/inquiry-form'
 import { LocalTime } from '@/components/motion/local-time'
 import { Magnetic } from '@/components/motion/magnetic'
 import { Parallax } from '@/components/motion/parallax'
@@ -33,6 +34,7 @@ export function BookingSteps() {
             </li>
           ))}
         </ol>
+        <InquiryForm />
       </div>
     </section>
   )

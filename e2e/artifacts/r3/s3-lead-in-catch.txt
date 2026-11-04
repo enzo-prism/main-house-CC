@@ -1,0 +1,66 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/components/inquiry-form.test.tsx (8 tests | 1 failed | 7 skipped) 301ms
+   ↓ InquiryForm generate_lead > prerenders as a POST to the form endpoint
+   ↓ InquiryForm generate_lead > uses the production Formspree action by default
+   ↓ InquiryForm generate_lead > fires generate_lead once with form_name after a successful local submit and does not POST
+   ↓ InquiryForm generate_lead > fires nothing on an invalid submit
+   ↓ InquiryForm generate_lead > does not fire generate_lead on click
+   ↓ InquiryForm generate_lead > does not POST or fire generate_lead when the honeypot is filled
+   × InquiryForm generate_lead > does not fire generate_lead when fetch rejects 300ms
+     → expected "spy" to not be called at all, but actually been called 1 times
+
+Received: 
+
+  1st spy call:
+
+    Array [
+      "event",
+      "generate_lead",
+      Object {
+        "form_name": "main_house_inquiry",
+      },
+    ]
+
+
+Number of calls: 1
+
+   ↓ InquiryForm generate_lead > sends only one POST when requestSubmit is called twice synchronously
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/inquiry-form.test.tsx > InquiryForm generate_lead > does not fire generate_lead when fetch rejects
+AssertionError: expected "spy" to not be called at all, but actually been called 1 times
+
+Received: 
+
+  1st spy call:
+
+    Array [
+      "event",
+      "generate_lead",
+      Object {
+        "form_name": "main_house_inquiry",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/components/inquiry-form.test.tsx:132:22
+    130|     expect(await screen.findByTestId('inquiry-error')).toBeInTheDocume…
+    131|     expect(fetchMock).toHaveBeenCalledTimes(1)
+    132|     expect(gtag).not.toHaveBeenCalled()
+       |                      ^
+    133|   })
+    134| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  19:50:03
+   Duration  945ms (transform 90ms, setup 99ms, collect 103ms, tests 301ms, environment 293ms, prepare 44ms)
+

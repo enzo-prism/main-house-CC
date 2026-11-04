@@ -1,0 +1,16 @@
+# Allowed sha256 digests of real googletagmanager.com/gtag/js?id=G-JD6CV2CFYS
+# snapshots. Google serves more than one container build. To add a new hash:
+# see README.md#pinned-gtagjs
+# Eggbot has also observed prefixes 3c78f4e1 and 80acdf18; add the full 64-char
+# digest printed by `node e2e/fetch-pinned-gtag.mjs` when one of those is served.
+b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a
+3ec457eb6c52371d753dac0ff6841f2f7b3131b9e6a26927a7733edde8988469
+f7fb5db4531c3548666f69516a87a01fcb4a4b59802f91fb25dca07c00c7e75b
+b50370db9b5936ca295ef5c3481d3347ce680605f920b77c3e6dda6c2f4e5ab8
+5837b313b5bfb38cfab899363c2208b36b80e82998dedacbdad595d933b0af04
+2dc451c1dbf0e23b79420a1ccd9bde986d3ab122eb996e34a89e2e59115d5198
+144c434dd4490a292e481f2719f130c3770bac74676a984571f010f89be3331c
+# Observed on GitHub Actions (assertLooksLikeGtag passed; official gtag URL).
+803df84ff443c866808dcc15a2931785fa3d69236162f03b221d5feb5f5972a3
+f20d79bd81f7ac1af4b1439a2347f5bf16717a7e7feff6d9f8ddbfac8518ad3a
+a281dab988ef0d1cd4d409b4a1487b97f4fc151a28bc0cbe0ca08f92da155256

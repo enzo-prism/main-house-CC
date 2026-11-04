@@ -1,0 +1,63 @@
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (10 tests | 2 failed | 8 skipped) 10ms
+   ↓ Google Analytics host gating > loads only on exact production Main House hostnames
+   × Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept 8ms
+     → expected true to be false // Object.is equality
+   × Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept 1ms
+     → expected true to be false // Object.is equality
+   ↓ Google Analytics host gating > defaults the measurement ID to the shared Canary Cove property
+   ↓ Google Analytics host gating > does not inject the gtag script on a preview hostname
+   ↓ page_view > strips the query string and hash from page_location and page_path
+   ↓ page_view > fires exactly one page_view on the initial route and one more on a path change
+   ↓ page_view > does not send a page_view for in-page hash changes
+   ↓ generate_lead params > keeps form_name and drops PII keys
+   ↓ generate_lead params > never forwards PII on generate_lead
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/analytics.test.ts > Google Analytics host gating > rejects localhost, previews, and lookalikes that an includes() mutant would accept
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/analytics.test.ts:32:75
+     30|     expect(shouldLoadGoogleAnalytics('127.0.0.1')).toBe(false)
+     31|     expect(shouldLoadGoogleAnalytics('canary-cove-main-house-git-main.…
+     32|     expect(shouldLoadGoogleAnalytics('staging.mainhouse.canarycove.com…
+       |                                                                           ^
+     33|     expect(shouldLoadGoogleAnalytics('mainhouse.canarycove.com.evil.te…
+     34|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/analytics.test.ts > Google Analytics host gating > rejects prefix lookalikes that an endsWith() mutant would accept
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/analytics.test.ts:37:68
+     35| 
+     36|   it('rejects prefix lookalikes that an endsWith() mutant would accept…
+     37|     expect(shouldLoadGoogleAnalytics('xmainhouse.canarycove.com')).toB…
+       |                                                                    ^
+     38|     expect(shouldLoadGoogleAnalytics('notmainhouse.canarycove.com')).t…
+     39|     expect(shouldLoadGoogleAnalytics('staging.mainhouse.canarycove.com…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 skipped (10)
+   Start at  18:22:24
+   Duration  660ms (transform 73ms, setup 115ms, collect 62ms, tests 10ms, environment 321ms, prepare 45ms)
+

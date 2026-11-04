@@ -1,0 +1,11 @@
+SHA: f3c178c19289d815b1be6f37a7c2d1e5d2c44ac6
+pass-after of e2e/artifacts/r5/mf1-d03ca50-fail.txt (run on the r5 working tree, committed as this SHA)
+
+--- test output ---
+
+  ✓  [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of dl and dr after same-origin navigation and reload (20.3s)
+
+  Real pinned gtag.js (sha256 b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a),
+  land /?name=Test%20Guest&Phone=5550100&email=…, SPA /rates, click Main House, reload.
+
+  No outgoing Google request contains Test Guest / 5550100 / test.guest in dl or dr.

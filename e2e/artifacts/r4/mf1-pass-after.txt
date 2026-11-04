@@ -1,0 +1,14 @@
+SHA: d03ca508c7da1934a3f1214fc24614255013653c
+pass-after of e2e/artifacts/r4/mf1-d1ced1d-fail.txt (run on the r4 working tree, committed as this SHA)
+
+--- test output ---
+
+  ✓  [chromium] › e2e/pinned-gtag.spec.ts › pinned gtag keeps query PII out of page_view, form_start, and generate_lead (470ms)
+
+  Real pinned gtag.js (sha256 b5a0541d953c2b94c507aa570ab5a09c4fd3021372782f60910a24d2604bd59a),
+  landing https://mainhouse.canarycove.com:4173/?name=Test%20Guest&phone=5550100&email=test.guest@example.test&utm_source=newsletter
+
+  page_view count: 1 (unchanged)
+  generate_lead count: 1 (unchanged)
+  outgoing Google requests containing Test Guest / 5550100 / test.guest: none
+  utm_source=newsletter kept on page_view

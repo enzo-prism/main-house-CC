@@ -1,0 +1,32 @@
+SHA: uncommitted r4 working tree after d1ced1d9cd6cf42a655e389ac5595ef4f0a82899 (Arguments fallback test added on the working tree; later committed as d03ca508c7da1934a3f1214fc24614255013653c)
+mutant: sf4-fallback-array — sendGoogleAnalyticsEvent fallback pushes ['event', name, payload] instead of Arguments
+
+--- patch ---
+--- a/src/lib/analytics.ts
++++ b/src/lib/analytics.ts
+@@ sendGoogleAnalyticsEvent
+-  if (typeof window.gtag !== 'function') {
+-    installArgumentsGtag()
+-  }
+-  window.gtag?.('event', name, payload)
++  if (typeof window.gtag !== 'function') {
++    window.dataLayer = window.dataLayer ?? []
++    window.dataLayer.push(['event', name, payload])
++    return
++  }
++  window.gtag?.('event', name, payload)
+
+--- test output ---
+
+ RUN  v3.2.7 /workspace
+
+ ❯ src/lib/analytics.test.ts (15 tests | 1 failed | 14 skipped) 7ms
+   × generate_lead params > queues Arguments objects from the no-gtag fallback 6ms
+     → expected '[object Array]' to be '[object Arguments]'
+
+ FAIL  src/lib/analytics.test.ts > generate_lead params > queues Arguments objects from the no-gtag fallback
+AssertionError: expected '[object Array]' to be '[object Arguments]'
+ ❯ src/lib/analytics.test.ts:221:65
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 skipped (15)
